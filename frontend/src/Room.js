@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import "./styles/Rooms.css"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faInfoCircle, faMapMarkedAlt, faStreetView, faBuilding, faChair, faChalkboard, faCommentAlt } from '@fortawesome/free-solid-svg-icons'
+import LinkButton from './LinkButton';
+
 /*
     Props
     - name
@@ -15,6 +17,7 @@ import { faInfoCircle, faMapMarkedAlt, faStreetView, faBuilding, faChair, faChal
     - comments
     - coordinates
     - chalmermapsLink
+    - large
 */
 export default function Room(props) {
     const [displayInfo, setDisplayInfo] = useState(props.expanded);
@@ -53,7 +56,7 @@ export default function Room(props) {
 
     return <div className="Room" key={props.name}>
         <header onClick={() => setDisplayInfo(!displayInfo)}>
-            <h2 className="Room-name">{props.name}</h2>
+            <h2 className={`Room-name ${props.large ? 'large' : ''}`} >{props.name}</h2>
             <FontAwesomeIcon
                 size="lg"
                 className="Room-expand"
@@ -69,6 +72,12 @@ export default function Room(props) {
             displayInfo &&
                 <div className="Room-info">
                     {generateInfo(props)}
+                </div>
+        }
+        {
+            (displayInfo || props.large) &&
+                <div className="Room-actions">
+                    <LinkButton label="Boka grupprummet" href="https://cloud.timeedit.net/chalmers/web/b1"/>
                 </div>
         }
         

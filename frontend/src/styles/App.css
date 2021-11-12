@@ -1,6 +1,29 @@
 .App {
   position: relative;
-  max-width: 600px;
+  max-width: 650px;
   margin-left:auto;
   margin-right:auto;
+  box-sizing: border-box;
+  padding:1rem;
+}
+
+.App .App-featuredRoom {
+  box-sizing: border-box;
+  padding:1rem;
+  padding-bottom:0.5rem;
+  padding-top:0.5rem;
+  background:#F35E23;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.1rem 0.3rem rgba(0, 0, 0, 0.281);
+  margin-bottom:20vh;
+}
+
+.App > header > h1 {
+  font-size: 4rem;
+}
+
+@media screen and (max-width: 700px) {
+  .App > header > h1 {
+    font-size: 2rem;
+  }
 }

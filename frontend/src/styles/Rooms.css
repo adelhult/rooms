@@ -14,6 +14,16 @@
 
 }
 
+.Room .large {
+    margin-top:0;
+    margin-bottom:0;
+    font-size:2.7rem;
+}
+
+.Room .Room-actions {
+    margin-top:1rem;
+}
+
 .Room > header {
     display:flex;
     cursor:pointer;
