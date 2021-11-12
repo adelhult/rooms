@@ -1,0 +1,16 @@
+body {
+  margin: 0;
+  padding:0;
+  font-family: 'Inter', sans-serif;
+}
+
+a {
+  color:inherit;
+  text-decoration:underlined;
+  transition:all 0.2s;
+}
+
+a:hover {
+  color:#F3752B;
+}
+
