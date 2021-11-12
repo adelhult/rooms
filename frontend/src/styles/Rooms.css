@@ -36,10 +36,6 @@
     transition:all 0.2s;
 }
 
-.Room .Room-expand:hover {
-    color:#F3752B;
-}
-
 .Room .Room-expand:active {
     transform:scale(1.2);
 }
