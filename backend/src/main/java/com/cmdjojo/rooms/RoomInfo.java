@@ -1,0 +1,102 @@
+package com.cmdjojo.rooms;
+
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+
+public class RoomInfo {
+    static Gson gson = new Gson();
+
+    public static RoomInfo getRoomInfo(String room) {
+        try {
+            var searchRes = getFromUrl("http://maps.chalmers.se/v2/live_search?lang=sv&charset=UTF-8&scope=location&scopes%5B%5D=chalmers&scopes%5B%5D=gothenburg&query=" + URLEncoder.encode(room, StandardCharsets.UTF_8));
+            SearchResult searchResult = gson.fromJson(searchRes.body(), SearchResult.class);
+
+            var docId = Arrays.stream(searchResult.suggestions)
+                    .filter(s -> s.value.equals(room))
+                    .findFirst().orElseThrow().docId;
+            var geoJsonRes = getFromUrl("http://maps.chalmers.se/v2/geojson?docid=" + URLEncoder.encode(docId, StandardCharsets.UTF_8) + "&format=json&lang=sv");
+            GeoJson geoJson = gson.fromJson(geoJsonRes.body(), GeoJson.class);
+
+            String roomId = geoJson.features[0].properties.timeeditId;
+
+            var roomRes = getFromUrl("http://maps.chalmers.se/v2/webservices/timeedit/room/" + URLEncoder.encode(roomId, StandardCharsets.UTF_8) + "/json");
+
+            return gson.fromJson(roomRes.body(), RoomInfo.class);
+        } catch (IOException | InterruptedException | NoSuchElementException exception) {
+            exception.printStackTrace();
+            return null;
+        }
+    }
+
+    private static HttpResponse<String> getFromUrl(String url) throws IOException, InterruptedException {
+        URI uri = URI.create(url);
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest req = HttpRequest.newBuilder().GET().uri(uri).build();
+        return client.send(req, HttpResponse.BodyHandlers.ofString());
+    }
+
+    @SerializedName("room.id")
+    public String roomId;
+    @SerializedName("room.name")
+    public String roomName;
+    @SerializedName("general.building")
+    public String generalBuilding;
+    @SerializedName("room.type")
+    public String roomType;
+    @SerializedName("room.seats")
+    public String roomSeats;
+    @SerializedName("room.equipment")
+    public String roomEquipment;
+    @SerializedName("room.webrespage")
+    public String roomWebrespage;
+    @SerializedName("room.culRoom")
+    public String roomCulRoom;
+    @SerializedName("general.objectComment")
+    public String generalObjectComment;
+    @SerializedName("alla.id_ref")
+    public String allaIdRef;
+    @SerializedName("room.seats-exam")
+    public String roomSeatsExam;
+    @SerializedName("room.price per seats")
+    public String roomPricePerSeats;
+    @SerializedName("room.computercount")
+    public String roomComputerCount;
+    @SerializedName("seats")
+    public String seats;
+    @SerializedName("equipment")
+    public String equipment;
+    @SerializedName("info")
+    public String info;
+}
+
+class SearchResult {
+    static class Suggestion {
+        String value;
+        @SerializedName("doc_id")
+        String docId;
+    }
+
+    Suggestion[] suggestions;
+}
+
+class GeoJson {
+    static class Feature {
+        Properties properties;
+    }
+
+    static class Properties {
+        @SerializedName("timeedit_id")
+        String timeeditId;
+    }
+
+    Feature[] features;
+}
