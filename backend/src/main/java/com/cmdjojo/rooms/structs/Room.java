@@ -1,43 +1,60 @@
 package com.cmdjojo.rooms.structs;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Objects;
 
 public class Room {
     public String name;
-    public ArrayList<Booking> bookings;
+    public ArrayList<TimeSlot> bookings;
     
-    boolean isOccupiedAt(Date d) {
+    boolean isOccupiedAt(Instant d) {
         return bookingAt(d) != null;
     }
     
-    Booking bookingAt(Date d) {
+    TimeSlot bookingAt(Instant d) {
         Objects.requireNonNull(d);
         return bookings.stream()
-                .filter(booking -> booking.start.before(d) && booking.end.after(d))
+                .filter(booking -> booking.start.isBefore(d) && booking.end.isAfter(d))
                 .findFirst()
                 .orElse(null);
     }
     
-    
-    Duration getTimeUntilFree(Date d) {
-        if(bookingAt(d) == null) return Duration.ZERO;
-        
-        
-        Date now = new Date(System.currentTimeMillis());
-        
-        return null;
+    TimeSlot getNextFreeSlot(Instant d) {
+        TimeSlot current = bookingAt(d);
+        Instant start = current == null ? d : current.end;
+        Instant end = bookings.stream()
+                .map(TimeSlot::getStart)
+                .filter(bookingStart -> bookingStart.isAfter(start) || bookingStart.equals(start))
+                .sorted()
+                .findFirst()
+                .orElse(null);
+        return new TimeSlot(start, end);
     }
     
     
-    static class Booking {
-        Date start, end;
+    Duration getTimeUntilFree(Instant d) {
+        TimeSlot current = bookingAt(d);
+        if (current == null) return Duration.ZERO;
+        else return Duration.between(d, current.end);
+    }
+    
+    
+    static class TimeSlot {
+        public Instant start, end;
         
-        public Booking(Date start, Date end) {
+        public TimeSlot(Instant start, Instant end) {
             this.start = start;
             this.end = end;
+        }
+        
+        public Instant getStart() {
+            return start;
+        }
+        
+        public Instant getEnd() {
+            return end;
         }
     }
 }
