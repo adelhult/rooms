@@ -13,6 +13,11 @@ public class Room {
         return bookingAt(d) != null;
     }
     
+    public Room(String name) {
+        this.name = name;
+        bookings = new ArrayList<>();
+    }
+    
     TimeSlot bookingAt(Instant d) {
         Objects.requireNonNull(d);
         return bookings.stream()
