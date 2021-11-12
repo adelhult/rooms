@@ -1,17 +1,20 @@
 plugins {
-    id 'java'
+    id 'application'
 }
 
 group 'com.cmdjojo'
 version '1.0-SNAPSHOT'
+mainClassName = 'com.cmdjojo.rooms.server.Main'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation 'com.google.code.gson:gson:2.8.9'
+    implementation 'net.sf.biweekly:biweekly:0.6.6'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
 
 test {
