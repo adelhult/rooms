@@ -14,14 +14,12 @@ import java.util.regex.Pattern;
 public class Room {
     public @NotNull String name;
     public @NotNull ArrayList<TimeSlot> bookings;
-    private final int prioOrdinal;
     private transient Priority priority; // do not serialize
     
     public Room(@NotNull String name) {
         this.name = name;
         bookings = new ArrayList<>();
         priority = Priority.search(name);
-        prioOrdinal = priority.ordinal();
     }
     
     public boolean isOccupiedAt(@NotNull Instant d) {
@@ -31,33 +29,66 @@ public class Room {
     public @Nullable TimeSlot bookingAt(@NotNull Instant d) {
         Objects.requireNonNull(d);
         return bookings.stream()
-                .filter(booking -> booking.start.isBefore(d) && booking.end.isAfter(d))
+                .filter(booking -> (booking.start.isBefore(d) || booking.start.equals(d)) && booking.end.isAfter(d))
                 .findFirst()
                 .orElse(null);
     }
     
-    public @NotNull TimeSlot getNextFreeSlot(Instant d) {
-        TimeSlot current = bookingAt(d);
-        Instant start = current == null ? d : current.end;
+    /**
+     * Finds a booking within a specific duration from the specified instant, exclusively. If the time now is 10:00 and
+     * the within is set to 15m, bookings starting earlier than 10:15 (and ending after 10:00) is found
+     *
+     * @param d      The instant to find a booking from
+     * @param within The first disallowed duration between the instant and the start time of the booking
+     * @return A booking which ends after the provided instant and starts before d+within
+     */
+    public @Nullable TimeSlot findBookingWithin(@NotNull Instant d, @NotNull Duration within) {
+        Objects.requireNonNull(d);
+        Instant mustStartBefore = d.plus(within);
+        return bookings.stream()
+                .filter(booking -> booking.start.compareTo(mustStartBefore) < 0 && booking.end.isAfter(d))
+                .findAny()
+                .orElse(null);
+    }
+    
+    /**
+     * Gets the next time slot this room is free, which starts at earliest at the provided instant and is at least
+     * the provided duration (inclusively) long. The time slot stretches to the start of the next booking, or 20 days,
+     * whichever occurs first.
+     *
+     * @param d           The instant to find the slot from
+     * @param minDuration The minimum duration the slot may have
+     * @return The next free slot which is at least minDuration long
+     */
+    public @NotNull TimeSlot getNextFreeSlot(Instant d, Duration minDuration) {
+        Instant startt = d;
+        TimeSlot atStart;
+        //as long as there is a booking within minDuration from
+        while ((atStart = findBookingWithin(startt, minDuration)) != null) startt = atStart.end;
+        
+        final Instant start = startt;
         Instant end = bookings.stream()
                 .map(TimeSlot::getStart)
-                .filter(bookingStart -> bookingStart.isAfter(start) || bookingStart.equals(start))
+                .filter(bookingStart -> bookingStart.isAfter(start))
                 .sorted()
                 .findFirst()
-                .orElse(d.plus(10, ChronoUnit.DAYS));
+                .orElse(d.plus(20, ChronoUnit.DAYS));
         return new TimeSlot(start, end);
     }
     
+    /**
+     * Gets the calculated priority of this room. Do NOT read the priority from the field itself since it isn't
+     * serialized and might not always be availible.
+     *
+     * @return The priority of this room
+     */
     public @NotNull Priority getPriority() {
-        if (priority == null) priority = Priority.values()[prioOrdinal];
+        if (priority == null) priority = Priority.search(name);
         return priority;
     }
     
-    
-    public @NotNull Duration getTimeUntilFree(Instant d) {
-        TimeSlot current = bookingAt(d);
-        if (current == null) return Duration.ZERO;
-        else return Duration.between(d, current.end);
+    public @NotNull Duration getTimeUntilFree(Instant d, Duration minDuration) {
+        return Duration.between(d, getNextFreeSlot(d, minDuration).start);
     }
     
     @Override
@@ -68,12 +99,6 @@ public class Room {
                 ", bookings=" + bookings +
                 '}';
     }
-
-//    public static int getPriority(String name) {
-//        if (name.startsWith("EG-2")) {
-//            return 1;
-//        }
-//    }
     
     public enum Priority {
         NC_FLOOR_1("EG-251[56]"),
