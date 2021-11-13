@@ -30,7 +30,9 @@ public class RoomInfo {
 
             var roomRes = getFromUrl("http://maps.chalmers.se/v2/webservices/timeedit/room/" + URLEncoder.encode(roomId, StandardCharsets.UTF_8) + "/json");
 
-            return gson.fromJson(roomRes.body(), RoomInfo.class);
+            var roomInfo = gson.fromJson(roomRes.body(), RoomInfo.class);
+            roomInfo.chalmersMapsLink = "https://maps.chalmers.se/#" + docId;
+            return roomInfo;
         } catch (IOException | InterruptedException | NoSuchElementException exception) {
             System.out.println("Failed to get room info for " + room + ".");
             return null;
@@ -76,6 +78,7 @@ public class RoomInfo {
     public String equipment;
     @SerializedName("info")
     public String info;
+    public String chalmersMapsLink;
 }
 
 class SearchResult {
