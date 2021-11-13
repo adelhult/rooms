@@ -29,8 +29,8 @@ public class DataCacher {
     private static volatile Data oldData;
     private static volatile CacheStatus status = CacheStatus.NEVER_LOADED;
     
+    private static Thread cacheThread;
     private static final List<String> ICS_URLS;
-    
     private static final List<HttpRequest> ICS_REQS;
     private static final HttpClient CLIENT;
     
@@ -58,6 +58,29 @@ public class DataCacher {
         CLIENT = HttpClient.newHttpClient();
     }
     
+    /**
+     * Starts the cache thread with the specified duration as cache interval
+     *
+     * @param duration The duration in second between each cache
+     * @return True if the thread wasn't already started, false otherwise
+     */
+    public static boolean startCacheThread(final int duration) {
+        if (cacheThread != null) return false;
+        cacheThread = new Thread(() -> {
+            while (true) {
+                System.out.println("Caching...");
+                cacheNewInstantly();
+                try {
+                    //noinspection BusyWait
+                    Thread.sleep(duration * 1000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        cacheThread.start();
+        return true;
+    }
     
     public static void cacheNewInstantly() {
         oldData = newData;
