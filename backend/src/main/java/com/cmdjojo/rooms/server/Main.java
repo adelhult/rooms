@@ -11,6 +11,7 @@ import java.util.Comparator;
 
 public class Main {
     public static void main(String... args) {
+        RestApi.start();
         DataCacher.cacheNewInstantly();
         DataCacher.startCacheThread(10);
         var map = DataCacher.getRooms();
