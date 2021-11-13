@@ -32,7 +32,7 @@ public class RoomInfo {
 
             return gson.fromJson(roomRes.body(), RoomInfo.class);
         } catch (IOException | InterruptedException | NoSuchElementException exception) {
-            exception.printStackTrace();
+            System.out.println("Failed to get room info for " + room + ".");
             return null;
         }
     }
@@ -53,7 +53,7 @@ public class RoomInfo {
     @SerializedName("room.type")
     public String roomType;
     @SerializedName("room.seats")
-    public String roomSeats;
+    public int roomSeats;
     @SerializedName("room.equipment")
     public String roomEquipment;
     @SerializedName("room.webrespage")

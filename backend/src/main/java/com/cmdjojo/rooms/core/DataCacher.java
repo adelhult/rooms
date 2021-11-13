@@ -3,6 +3,7 @@ package com.cmdjojo.rooms.core;
 import biweekly.Biweekly;
 import biweekly.ICalendar;
 import biweekly.component.VEvent;
+import com.cmdjojo.rooms.RoomInfo;
 import com.cmdjojo.rooms.structs.Room;
 import com.google.gson.Gson;
 
@@ -28,17 +29,20 @@ public class DataCacher {
     private static volatile Data newData;
     private static volatile Data oldData;
     private static volatile CacheStatus status = CacheStatus.NEVER_LOADED;
-    
+
+    private static volatile Map<String, RoomInfo> cachedRoomInfo;
+
+    private static final Object LOCK = new Object();
     private static Thread cacheThread;
     private static final List<String> ICS_URLS;
     private static final List<HttpRequest> ICS_REQS;
     private static final HttpClient CLIENT;
-    
+
     static {
         ICS_URLS = List.of(
                 "https://cloud.timeedit.net/chalmers/web/public/ri6Y623ZX55Z6QQ1866650565Q0753y8Z441446Q617X6Xn855.ics"
         );
-        
+
         ICS_REQS = ICS_URLS.stream().map(url ->
                 {
                     try {
@@ -54,10 +58,10 @@ public class DataCacher {
                     return null;
                 }
         ).collect(Collectors.toUnmodifiableList());
-        
+
         CLIENT = HttpClient.newHttpClient();
     }
-    
+
     /**
      * Starts the cache thread with the specified duration as cache interval
      *
@@ -81,13 +85,13 @@ public class DataCacher {
         cacheThread.start();
         return true;
     }
-    
+
     public static void cacheNewInstantly() {
         oldData = newData;
         status = CacheStatus.NEW_CACHE_COMMENCING;
         newData = new Data();
         System.out.printf("Caching new data from %d ics urls...%n", ICS_REQS.size());
-        
+
         CompletableFuture<Void> allIcsResponses = CompletableFuture.allOf(
                 ICS_REQS.stream().map(req -> CLIENT.sendAsync(req, HttpResponse.BodyHandlers.ofString())
                         .thenAccept(res -> {
@@ -99,18 +103,18 @@ public class DataCacher {
                         })).toArray(CompletableFuture[]::new)
         );
         //TODO: Add info gather here
-        
+
         try {
             allIcsResponses.get();
             //TODO: Wait for info gather
-            
+
             status = CacheStatus.NEW_CACHE_PRESENT;
         } catch (InterruptedException | ExecutionException e) {
             System.err.println("Something went wrong when waiting for ical responses");
             e.printStackTrace();
         }
     }
-    
+
     private static void acceptNewIcsData(String s) {
         ICalendar cal = Biweekly.parse(s).first();
         for (VEvent event : cal.getEvents()) {
@@ -122,7 +126,7 @@ public class DataCacher {
                         event.getLocation().getValue());
                 continue;
             }
-            
+
             Room.TimeSlot slot = new Room.TimeSlot(event);
             for (String roomName : roomNames) {
                 newData.rooms.putIfAbsent(roomName, new Room(roomName));
@@ -130,7 +134,7 @@ public class DataCacher {
             }
         }
     }
-    
+
     public static Map<String, Room> getRooms() {
         if (status == CacheStatus.NEVER_LOADED) return null;
         else if (status == CacheStatus.NEW_CACHE_PRESENT) return newData.rooms;
@@ -148,6 +152,21 @@ public class DataCacher {
             return false;
         }
     }
+
+    public static void cacheRoomInfo() {
+        cachedRoomInfo = new HashMap<String, RoomInfo>();
+        for (String room : getRooms().keySet()) {
+            var roomInfo = RoomInfo.getRoomInfo(room);
+            if (roomInfo != null) {
+                cachedRoomInfo.put(room, roomInfo);
+            }
+        }
+    }
+
+    public static RoomInfo getRoomInfo(String room) {
+        if (cachedRoomInfo == null) return null;
+        return cachedRoomInfo.get(room);
+    }
 }
 
 enum CacheStatus {
@@ -158,7 +177,7 @@ enum CacheStatus {
 
 class Data {
     Map<String, Room> rooms;
-    
+
     public Data() {
         this.rooms = new HashMap<>();
     }

@@ -1,6 +1,7 @@
 package com.cmdjojo.rooms.structs;
 
 import biweekly.component.VEvent;
+import com.google.gson.annotations.SerializedName;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,17 +16,17 @@ public class Room {
     public @NotNull String name;
     public @NotNull ArrayList<TimeSlot> bookings;
     private transient Priority priority; // do not serialize
-    
+
     public Room(@NotNull String name) {
         this.name = name;
         bookings = new ArrayList<>();
         priority = Priority.search(name);
     }
-    
+
     public boolean isOccupiedAt(@NotNull Instant d) {
         return bookingAt(d) != null;
     }
-    
+
     public @Nullable TimeSlot bookingAt(@NotNull Instant d) {
         Objects.requireNonNull(d);
         return bookings.stream()
@@ -33,7 +34,7 @@ public class Room {
                 .findFirst()
                 .orElse(null);
     }
-    
+
     /**
      * Finds a booking within a specific duration from the specified instant, exclusively. If the time now is 10:00 and
      * the within is set to 15m, bookings starting earlier than 10:15 (and ending after 10:00) is found
@@ -50,7 +51,7 @@ public class Room {
                 .findAny()
                 .orElse(null);
     }
-    
+
     /**
      * Gets the next time slot this room is free, which starts at earliest at the provided instant and is at least
      * the provided duration (inclusively) long. The time slot stretches to the start of the next booking, or 20 days,
@@ -64,8 +65,8 @@ public class Room {
         Instant startt = d;
         TimeSlot atStart;
         //as long as there is a booking within minDuration from
-        while ((atStart = findBookingWithin(startt, minDuration)) != null) startt = atStart.end;
-        
+        while ((atStart = findBookingWithin(startt, minDuration)) != null) startt = atStart.endInstant;
+
         final Instant start = startt;
         Instant end = bookings.stream()
                 .map(TimeSlot::getStart)
@@ -75,7 +76,7 @@ public class Room {
                 .orElse(d.plus(20, ChronoUnit.DAYS));
         return new TimeSlot(start, end);
     }
-    
+
     /**
      * Gets the calculated priority of this room. Do NOT read the priority from the field itself since it isn't
      * serialized and might not always be availible.
@@ -86,11 +87,11 @@ public class Room {
         if (priority == null) priority = Priority.search(name);
         return priority;
     }
-    
+
     public @NotNull Duration getTimeUntilFree(Instant d, Duration minDuration) {
         return Duration.between(d, getNextFreeSlot(d, minDuration).start);
     }
-    
+
     @Override
     public String toString() {
         return "Room{" +
@@ -99,7 +100,7 @@ public class Room {
                 ", bookings=" + bookings +
                 '}';
     }
-    
+
     public enum Priority {
         NC_FLOOR_1("EG-251[56]"),
         NC_FLOOR_2("EG-350[3-8]"),
@@ -108,15 +109,15 @@ public class Room {
         EDIT_FLOOR_5("EG-5.*"),
         EDIT_FLOOR_6("EG-6.*"),
         UNKNOWN(".*");
-        
+
         private final Pattern pattern;
         public final double timeMultiplier;
-        
+
         Priority(String regex) {
             pattern = Pattern.compile(regex);
             timeMultiplier = Math.pow(1.1, ordinal());
         }
-        
+
         static Priority search(String name) {
             for (Priority value : values()) {
                 if (value.pattern.matcher(name).matches()) return value;
@@ -124,7 +125,7 @@ public class Room {
             return UNKNOWN;
         }
     }
-    
+
     public static class TimeSlot {
         
         public final @NotNull Instant start;
@@ -133,29 +134,29 @@ public class Room {
         public TimeSlot(VEvent event) {
             this(event.getDateStart().getValue().toInstant(), event.getDateEnd().getValue().toInstant());
         }
-        
+
         public TimeSlot(@NotNull Instant start, @NotNull Instant end) {
             this.start = start;
             this.end = end;
         }
-        
+
         public @NotNull Instant getStart() {
             return start;
         }
-        
+
         public @NotNull Instant getEnd() {
             return end;
         }
-        
+
         public @NotNull Duration getDuration() {
             return Duration.between(start, end);
         }
-        
+
         public @NotNull Duration timeUntilStart(Instant now) {
             if (start.isBefore(now)) return Duration.ZERO;
             else return Duration.between(now, start);
         }
-        
+
         @Override
         public String toString() {
             return "TimeSlot{" +
