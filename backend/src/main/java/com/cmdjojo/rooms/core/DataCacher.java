@@ -7,9 +7,7 @@ import com.cmdjojo.rooms.RoomInfo;
 import com.cmdjojo.rooms.structs.Room;
 import com.google.gson.Gson;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -87,8 +85,10 @@ public class DataCacher {
     }
 
     public static void cacheNewInstantly() {
-        oldData = newData;
-        status = CacheStatus.NEW_CACHE_COMMENCING;
+        synchronized (LOCK) {
+            oldData = newData;
+            status = CacheStatus.NEW_CACHE_COMMENCING;
+        }
         newData = new Data();
         System.out.printf("Caching new data from %d ics urls...%n", ICS_REQS.size());
 
@@ -136,11 +136,31 @@ public class DataCacher {
     }
 
     public static Map<String, Room> getRooms() {
-        if (status == CacheStatus.NEVER_LOADED) return null;
-        else if (status == CacheStatus.NEW_CACHE_PRESENT) return newData.rooms;
-        else return oldData.rooms;
+        synchronized (LOCK) {
+            if (status == CacheStatus.NEVER_LOADED) return null;
+            else if (status == CacheStatus.NEW_CACHE_PRESENT) return newData.rooms;
+            else return oldData.rooms;
+        }
     }
-    
+
+    public static boolean writeToFile(File f) {
+        try (FileWriter fw = new FileWriter(f)){
+            synchronized(LOCK) {
+                if (status == CacheStatus.NEW_CACHE_PRESENT) {
+                    new Gson().toJson(newData, fw);
+                } else {
+                    new Gson().toJson(oldData, fw);
+                }
+            }
+            return true;
+        } catch (IOException e) {
+            System.err.println("Could not save cached data!");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
     public static boolean loadFromFile(File f) {
         try {
             newData = new Gson().fromJson(new FileReader(f), Data.class);

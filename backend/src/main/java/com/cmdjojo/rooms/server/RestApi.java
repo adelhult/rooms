@@ -16,7 +16,9 @@ import java.util.stream.Collectors;
 
 
 public class RestApi {
-    private static Gson gson = new Gson();
+    private static Gson gson = new GsonBuilder()
+            .serializeNulls()
+            .create();
 
     private static final int port = 8080;
 

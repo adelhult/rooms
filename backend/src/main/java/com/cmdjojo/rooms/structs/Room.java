@@ -30,7 +30,7 @@ public class Room {
     public @Nullable TimeSlot bookingAt(@NotNull Instant d) {
         Objects.requireNonNull(d);
         return bookings.stream()
-                .filter(booking -> (booking.start.isBefore(d) || booking.start.equals(d)) && booking.end.isAfter(d))
+                .filter(booking -> (booking.startInstant.isBefore(d) || booking.startInstant.equals(d)) && booking.endInstant.isAfter(d))
                 .findFirst()
                 .orElse(null);
     }
@@ -47,7 +47,7 @@ public class Room {
         Objects.requireNonNull(d);
         Instant mustStartBefore = d.plus(within);
         return bookings.stream()
-                .filter(booking -> booking.start.compareTo(mustStartBefore) < 0 && booking.end.isAfter(d))
+                .filter(booking -> booking.startInstant.compareTo(mustStartBefore) < 0 && booking.endInstant.isAfter(d))
                 .findAny()
                 .orElse(null);
     }
@@ -89,7 +89,7 @@ public class Room {
     }
 
     public @NotNull Duration getTimeUntilFree(Instant d, Duration minDuration) {
-        return Duration.between(d, getNextFreeSlot(d, minDuration).start);
+        return Duration.between(d, getNextFreeSlot(d, minDuration).startInstant);
     }
 
     @Override
@@ -127,41 +127,50 @@ public class Room {
     }
 
     public static class TimeSlot {
-        
-        public final @NotNull Instant start;
-        public final @NotNull Instant end;
-        
+
+        @SerializedName("start")
+        private long startMillis;
+        @SerializedName("end")
+        private long endMillis;
+
+        private transient @Nullable Instant startInstant;
+        private transient @Nullable Instant endInstant;
+
         public TimeSlot(VEvent event) {
             this(event.getDateStart().getValue().toInstant(), event.getDateEnd().getValue().toInstant());
         }
 
         public TimeSlot(@NotNull Instant start, @NotNull Instant end) {
-            this.start = start;
-            this.end = end;
+            startMillis = start.toEpochMilli();
+            endMillis = end.toEpochMilli();
+            this.startInstant = start;
+            this.endInstant = end;
         }
 
         public @NotNull Instant getStart() {
-            return start;
+            if(startInstant == null) startInstant = Instant.ofEpochMilli(startMillis);
+            return startInstant;
         }
 
         public @NotNull Instant getEnd() {
-            return end;
+            if(endInstant == null) endInstant = Instant.ofEpochMilli(startMillis);
+            return endInstant;
         }
 
         public @NotNull Duration getDuration() {
-            return Duration.between(start, end);
+            return Duration.between(startInstant, endInstant);
         }
 
         public @NotNull Duration timeUntilStart(Instant now) {
-            if (start.isBefore(now)) return Duration.ZERO;
-            else return Duration.between(now, start);
+            if (startInstant.isBefore(now)) return Duration.ZERO;
+            else return Duration.between(now, startInstant);
         }
 
         @Override
         public String toString() {
             return "TimeSlot{" +
-                    "start=" + start +
-                    ", end=" + end +
+                    "start=" + startInstant +
+                    ", end=" + endInstant +
                     '}';
         }
     }

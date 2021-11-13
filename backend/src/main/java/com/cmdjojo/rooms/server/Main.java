@@ -13,6 +13,7 @@ public class Main {
     public static void main(String... args) {
         RestApi.start();
         DataCacher.cacheNewInstantly();
+        DataCacher.cacheRoomInfo();
         DataCacher.startCacheThread(10);
         var map = DataCacher.getRooms();
         assert map != null;
