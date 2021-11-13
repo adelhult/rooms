@@ -75,9 +75,13 @@ public class DataCacher {
                             }
                         })).toArray(CompletableFuture[]::new)
         );
+        //TODO: Add info gather here
         
         try {
             allIcsResponses.get();
+            //TODO: Wait for info gather
+            
+            status = CacheStatus.NEW_CACHE_PRESENT;
         } catch (InterruptedException | ExecutionException e) {
             System.err.println("Something went wrong when waiting for ical responses");
             e.printStackTrace();
@@ -87,7 +91,20 @@ public class DataCacher {
     private static void acceptNewIcsData(String s) {
         ICalendar cal = Biweekly.parse(s).first();
         for (VEvent event : cal.getEvents()) {
-            //newData.rooms.
+            String[] roomNames = event.getLocation().getValue().split("[, ]+");
+            if (roomNames.length == 0) {
+                System.err.printf("Could not find room name for event with start at %s and end at %s, " +
+                                "location was %s%n",
+                        event.getDateStart().getValue(), event.getDateEnd().getValue(),
+                        event.getLocation().getValue());
+                continue;
+            }
+            
+            Room.TimeSlot slot = new Room.TimeSlot(event);
+            for (String roomName : roomNames) {
+                newData.rooms.putIfAbsent(roomName, new Room(roomName));
+                newData.rooms.get(roomName).bookings.add(slot);
+            }
         }
     }
     
