@@ -14,6 +14,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'net.sf.biweekly:biweekly:0.6.6'
     implementation 'org.jetbrains:annotations:20.1.0'
+    implementation group: 'io.javalin', name: 'javalin', version: '4.1.1'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }

@@ -1,8 +1,5 @@
-import logo from './logo.svg';
 import './styles/App.css';
 import Room from "./Room.js";
-
-
 
 function App() {
   return (
@@ -13,6 +10,10 @@ function App() {
       <div className="App-featuredRoom">
       <Room
           large
+          seats = {6}
+          building = "EDIT"
+          equipment = "Whiteboardtavla"
+          comments = "Ligger på våning 2 i NC"
           name = "EG-3205"
           startTime = "10:00"
           duration = "2"
@@ -20,7 +21,7 @@ function App() {
 
       </div>
       </header>
-      <h4>Flera lediga rum</h4>
+      <h3>Flera lediga rum</h3>
       <Room
           name = "EG-2516"
           startTime = "14:00"
