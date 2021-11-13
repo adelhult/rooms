@@ -71,7 +71,8 @@ public class DataCacher {
                 System.out.println("Caching...");
                 cacheNewInstantly();
                 try {
-                    Thread.sleep(duration * 1000);
+                    //noinspection BusyWait
+                    Thread.sleep(duration * 1000L);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
