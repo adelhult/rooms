@@ -32,8 +32,10 @@ public class RoomInfo {
 
             var roomInfo = gson.fromJson(roomRes.body(), RoomInfo.class);
             roomInfo.chalmersMapsLink = "https://maps.chalmers.se/#" + docId;
+            roomInfo.latitude = geoJson.features[0].properties.latitude;
+            roomInfo.longitude = geoJson.features[0].properties.longitude;
             return roomInfo;
-        } catch (IOException | InterruptedException | NoSuchElementException exception) {
+        } catch (Exception e) {
             System.out.println("Failed to get room info for " + room + ".");
             return null;
         }
@@ -79,6 +81,8 @@ public class RoomInfo {
     @SerializedName("info")
     public String info;
     public String chalmersMapsLink;
+    double latitude;
+    double longitude;
 }
 
 class SearchResult {
@@ -99,6 +103,8 @@ class GeoJson {
     static class Properties {
         @SerializedName("timeedit_id")
         String timeeditId;
+        double latitude;
+        double longitude;
     }
 
     Feature[] features;
