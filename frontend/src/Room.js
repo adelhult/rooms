@@ -80,7 +80,7 @@ export default function Room(props) {
         <span className="Room-timeinfo">
             Ledigt&nbsp;
             {(() => {
-                if (new Date().getTime() - props.startTime < 1000) {
+                if (Math.abs(new Date().getTime() - props.startTime) < 10_000) {
                     return "nu"
                 } else {
                     return "från " + new Date(props.startTime).toLocaleTimeString('sv-SE', {
