@@ -8,22 +8,37 @@
 }
 
 .App .App-featuredRoom {
+  position:relative;
   box-sizing: border-box;
   padding:1rem;
   padding-bottom:0.5rem;
   padding-top:0.5rem;
-  background:#F35E23;
+  background:rgba(255, 255, 255, 0.144);
   border-radius: 0.5rem;
   box-shadow: 0 0.1rem 0.3rem rgba(0, 0, 0, 0.281);
   margin-bottom:20vh;
+  animation: 0.7s slideIn cubic-bezier(0.215, 0.610, 0.355, 1);
 }
 
+
 .App > header > h1 {
+  position: relative;
   font-size: 4rem;
 }
 
 @media screen and (max-width: 700px) {
   .App > header > h1 {
     font-size: 2rem;
+  }
+}
+
+@keyframes slideIn{
+  0% {
+    top:-20px;
+    opacity:0;
+  }
+  100% {
+    top:0;
+    opacity:1;
   }
 }

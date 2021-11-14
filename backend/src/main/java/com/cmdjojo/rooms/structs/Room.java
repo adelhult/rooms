@@ -133,6 +133,7 @@ public class Room {
         @SerializedName("end")
         private long endMillis;
 
+
         private transient @Nullable Instant startInstant;
         private transient @Nullable Instant endInstant;
 

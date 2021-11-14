@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import io.javalin.Javalin;
+import io.javalin.core.JavalinConfig;
 
 import java.time.*;
 
@@ -41,12 +42,13 @@ public class RestApi {
     }
 
     public static void start() {
-        Javalin app = Javalin.create().start(port);
+        Javalin app = Javalin.create(JavalinConfig::enableCorsForAllOrigins).start(port);
         app.get("/info/{roomName}", ctx -> {
             String roomName = ctx.pathParam("roomName");
             var info = DataCacher.getRoomInfo(roomName);
             ctx.result(gson.toJson(info));
         });
+
 
         app.get("/suggestions", ctx -> {
             // get params or else set default values
@@ -81,9 +83,11 @@ public class RestApi {
                         }
                         return true;
                     })
+                    // todo: vikta en poäng och capa och time free till typ fyra h, timeFree - getTimeUntilFree * 100
+                    //   ta hänsyn till distance/house
                     .sorted(Comparator.comparing(room -> room.getTimeUntilFree(fromDateTime, minTime)))
                     .limit(number)
-                    .map(room -> new RoomDataSent(room, fromDateTime, minTime))
+                    .map(room -> new RoomDataSent(room, fromDateTime, minTime, DataCacher.getRoomInfo(room.name)))
                     .collect(Collectors.toList());
 
             ctx.contentType("application/json");
@@ -95,10 +99,28 @@ public class RestApi {
     static class RoomDataSent {
         String name;
         Room.TimeSlot timeslot;
+        String seatcount;
+        String building;
+        String comment;
+        String equipment;
+        String chalmersMapsLink;
+        double latitude;
+        double longitude;
+        long duration;
 
-        RoomDataSent(Room room, Instant fromDateTime, Duration minTime) {
+        RoomDataSent(Room room, Instant fromDateTime, Duration minTime, RoomInfo roomInfo) {
             name = room.name;
             timeslot = room.getNextFreeSlot(fromDateTime, minTime);
+            if (roomInfo != null) {
+                seatcount = Integer.toString(roomInfo.roomSeats);
+                building = roomInfo.generalBuilding;
+                comment = roomInfo.info;
+                equipment = roomInfo.equipment;
+                chalmersMapsLink = roomInfo.chalmersMapsLink;
+                latitude = roomInfo.latitude;
+                longitude = roomInfo.longitude;
+            }
+            duration = timeslot.getDuration().toMillis();
         }
     }
 

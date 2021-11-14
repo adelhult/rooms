@@ -15,8 +15,9 @@ import LinkButton from './LinkButton';
     - building
     - seats
     - comments
-    - coordinates
-    - chalmermapsLink
+    - latitude
+    - longitude
+    - chalmerMapsLink
     - large
 */
 export default function Room(props) {
@@ -38,18 +39,20 @@ export default function Room(props) {
                 <strong>Utrustning: </strong> 
                 <p>{props.equipment ?? "okänt"}</p>
             </li>
-            <li>
-                <FontAwesomeIcon className="Room-inlineIcon" icon={faCommentAlt} />
-                <strong>Övrigt: </strong> 
-                <p>{props.comments ?? "okänt"}</p>
-            </li>
+            { props.comment && 
+                <li>
+                    <FontAwesomeIcon className="Room-inlineIcon" icon={faCommentAlt} />
+                    <strong>Övrigt: </strong> 
+                    <p>{props.comments ?? "okänt"}</p>
+                </li>
+            }
             <li>
                 <FontAwesomeIcon className="Room-inlineIcon" icon={faMapMarkedAlt}/>
-                <a href=""><strong>Länk till karta</strong> </a>
+                <a target="_blank" href={`https://www.google.se/maps/?q=loc:${props.latitude},${props.longitude}`}><strong>Länk till karta</strong> </a>
             </li>
             <li>
                 <FontAwesomeIcon className="Room-inlineIcon" icon={faStreetView} />
-                <a href=""><strong>Länk till Chalmers maps</strong> </a>
+                <a target="_blank" href={props.chalmersMapsLink}><strong>Länk till Chalmers maps</strong> </a>
             </li>
         </ul>
     }
@@ -65,7 +68,7 @@ export default function Room(props) {
         </header>
 
         <span className="Room-timeinfo">
-            Ledigt från {props.startTime} i {props.duration} timmar
+            Ledigt från { new Date(props.startTime).toLocaleTimeString('sv-SE', {hour: '2-digit', minute:"2-digit"})} i {Math.floor(props.duration / 3600000)} timmar och {Math.floor((props.duration % 3600000) / 60000) } minuter.
         </span>
 
         {

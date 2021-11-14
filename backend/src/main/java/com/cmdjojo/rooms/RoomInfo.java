@@ -81,8 +81,8 @@ public class RoomInfo {
     @SerializedName("info")
     public String info;
     public String chalmersMapsLink;
-    double latitude;
-    double longitude;
+    public double latitude;
+    public double longitude;
 }
 
 class SearchResult {

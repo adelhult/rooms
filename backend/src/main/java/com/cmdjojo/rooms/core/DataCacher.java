@@ -38,7 +38,7 @@ public class DataCacher {
 
     static {
         ICS_URLS = List.of(
-                "https://cloud.timeedit.net/chalmers/web/public/ri6Y623ZX55Z6QQ1866650565Q0753y8Z441446Q617X6Xn855.ics"
+                "https://cloud.timeedit.net/chalmers/web/public/ri6Y623XX55Z64Q186665066560753587461446Q617XXX2885142276X6566485XX47274X456X794262461XX5770855565276X62764544655X865776765X67WXX6X6858855874X86454X6456867264668X55664X1X984783455858XX664468156Y6665X5366XXX767836648566X5X666395446635614557XX66888765X36255W68730495X7846652864X55516565XY77X666X3347X6375X3406487X6X76376654X4XX6887X7X596644566751827650686999X5XX666904369696766088969666010609990XXXX9690006666XW60108XXX62120X3092525656081XX816196666865YX83720600808X1668646868826XX8X8932X66266X20000X6626255580881X26800X6X420226066262XX76002776788886X6807XX2286276808886X6X7X387Y05700W820883XX08225206X1846677Z67Q096X225205ZyQ8Xn86185.ics"
         );
 
         ICS_REQS = ICS_URLS.stream().map(url ->
@@ -47,7 +47,7 @@ public class DataCacher {
                         return HttpRequest.newBuilder()
                                 .GET()
                                 .uri(new URL(url).toURI())
-                                .timeout(Duration.of(5, ChronoUnit.SECONDS))
+                                .timeout(Duration.of(12, ChronoUnit.SECONDS))
                                 .build();
                     } catch (URISyntaxException | MalformedURLException e) {
                         System.err.println("Error fixing ICS URLs in initialization for DataCacher");

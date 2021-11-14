@@ -1,5 +1,5 @@
 import axios from 'axios';
-import config from 'config';
+import config from './config';
 
 const axiosInstance = axios.create({
   baseURL: config.appBaseUrl,
@@ -18,7 +18,7 @@ export const getRoomInfo = async roomName => new Promise((resolve, reject) => {
 export const getSuggestions = async (options = {}) => new Promise((resolve, reject) => {
   axiosInstance.get('/suggestions', {
     params: {
-      number: options.number ?? 4,
+      number: options.number ?? 10,
       minSeats: options.minSeats ?? 4,
       minTime: options.minTime ?? 45,
       from: options.from ?? Date.now(),
