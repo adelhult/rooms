@@ -13,7 +13,7 @@ public class Main {
     public static void main(String... args) {
         RestApi.start();
         DataCacher.cacheNewInstantly();
-        DataCacher.cacheRoomInfo();
+        DataCacher.cacheRoomInfoAsync();
         DataCacher.startCacheThread(10);
         var map = DataCacher.getRooms();
         assert map != null;
@@ -21,21 +21,17 @@ public class Main {
         var minDur = Duration.of(15, ChronoUnit.MINUTES);
         System.out.printf("%d rooms found: %s%n", map.size(), String.join(", ", map.keySet()));
         map.values().forEach(room -> room.bookings.sort(Comparator.comparing(Room.TimeSlot::getStart)));
-        for (Room value : map.values()) {
+        
+        map.values().stream().sorted(Comparator.comparing(room -> room.getGoodnessScore(sim,
+                room.getNextFreeSlot(sim, minDur)))).forEach(value -> {
+            System.out.println();
             System.out.printf("Room %s has %d bookings:%n", value.name, value.bookings.size());
-            value.bookings.forEach(System.out::println);
+//            value.bookings.forEach(System.out::println);
             System.out.println("It is free in " + value.getTimeUntilFree(sim, minDur) + " for " + value.getNextFreeSlot(sim, minDur).getDuration());
-        }
+            System.out.println("Score: " + value.getGoodnessScore(sim, value.getNextFreeSlot(sim, minDur)));
+        });
+        
         System.out.println("Time is " + sim.toString());
-        System.out.println("Min duration was "+minDur.toString());
-
-
-//        System.out.println("abc");
-//        ICalendar cal = Downloader.cal();
-//        System.out.println(cal.getEvents().size());
-//
-//        cal.getEvents().forEach(e -> System.out.printf("%s TO %s IN %s%n", e.getDateStart().getValue(),
-//                e.getDateEnd().getValue(),
-//                e.getLocation().getValue()));
+        System.out.println("Min duration was " + minDur.toString());
     }
 }

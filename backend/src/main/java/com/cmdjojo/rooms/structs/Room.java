@@ -15,18 +15,19 @@ import java.util.regex.Pattern;
 public class Room {
     public @NotNull String name;
     public @NotNull ArrayList<TimeSlot> bookings;
+    public static final Duration MAX_GOODNESS_DURATION = Duration.of(4, ChronoUnit.HOURS);
     private transient Priority priority; // do not serialize
-
+    
     public Room(@NotNull String name) {
         this.name = name;
         bookings = new ArrayList<>();
         priority = Priority.search(name);
     }
-
+    
     public boolean isOccupiedAt(@NotNull Instant d) {
         return bookingAt(d) != null;
     }
-
+    
     public @Nullable TimeSlot bookingAt(@NotNull Instant d) {
         Objects.requireNonNull(d);
         return bookings.stream()
@@ -34,7 +35,7 @@ public class Room {
                 .findFirst()
                 .orElse(null);
     }
-
+    
     /**
      * Finds a booking within a specific duration from the specified instant, exclusively. If the time now is 10:00 and
      * the within is set to 15m, bookings starting earlier than 10:15 (and ending after 10:00) is found
@@ -51,7 +52,7 @@ public class Room {
                 .findAny()
                 .orElse(null);
     }
-
+    
     /**
      * Gets the next time slot this room is free, which starts at earliest at the provided instant and is at least
      * the provided duration (inclusively) long. The time slot stretches to the start of the next booking, or 20 days,
@@ -66,7 +67,7 @@ public class Room {
         TimeSlot atStart;
         //as long as there is a booking within minDuration from
         while ((atStart = findBookingWithin(startt, minDuration)) != null) startt = atStart.endInstant;
-
+        
         final Instant start = startt;
         Instant end = bookings.stream()
                 .map(TimeSlot::getStart)
@@ -76,7 +77,15 @@ public class Room {
                 .orElse(d.plus(20, ChronoUnit.DAYS));
         return new TimeSlot(start, end);
     }
-
+    
+    public int getGoodnessScore(Instant d, TimeSlot assignedSlot) {
+        Duration usedFreeDuration = assignedSlot.getDuration().compareTo(MAX_GOODNESS_DURATION) < 0 ?
+                assignedSlot.getDuration() : MAX_GOODNESS_DURATION;
+        Duration timeUntilFree = Duration.between(d, assignedSlot.getStart()).multipliedBy(20);
+        long time = usedFreeDuration.toMinutes() - timeUntilFree.toMinutes();
+        return (int) (time * getPriority().timeMultiplier);
+    }
+    
     /**
      * Gets the calculated priority of this room. Do NOT read the priority from the field itself since it isn't
      * serialized and might not always be availible.
@@ -87,11 +96,11 @@ public class Room {
         if (priority == null) priority = Priority.search(name);
         return priority;
     }
-
+    
     public @NotNull Duration getTimeUntilFree(Instant d, Duration minDuration) {
         return Duration.between(d, getNextFreeSlot(d, minDuration).startInstant);
     }
-
+    
     @Override
     public String toString() {
         return "Room{" +
@@ -100,24 +109,24 @@ public class Room {
                 ", bookings=" + bookings +
                 '}';
     }
-
+    
     public enum Priority {
-        NC_FLOOR_1("EG-251[56]"),
-        NC_FLOOR_2("EG-350[3-8]"),
+        NC_FLOOR_1("EG-251\\d"),
+        NC_FLOOR_2("EG-350\\d"),
         EDIT_FLOOR_3("EG-3.+"),
-        EDIT_FLOOR_4("EG-4.*"),
-        EDIT_FLOOR_5("EG-5.*"),
-        EDIT_FLOOR_6("EG-6.*"),
+        EDIT_FLOOR_4("EG-4.+"),
+        EDIT_FLOOR_5("EG-5.+"),
+        EDIT_FLOOR_6("EG-6.+"),
         UNKNOWN(".*");
-
+        
         private final Pattern pattern;
         public final double timeMultiplier;
-
+        
         Priority(String regex) {
             pattern = Pattern.compile(regex);
-            timeMultiplier = Math.pow(1.1, ordinal());
+            timeMultiplier = Math.pow(0.96, ordinal());
         }
-
+        
         static Priority search(String name) {
             for (Priority value : values()) {
                 if (value.pattern.matcher(name).matches()) return value;
@@ -125,48 +134,48 @@ public class Room {
             return UNKNOWN;
         }
     }
-
+    
     public static class TimeSlot {
-
+        
         @SerializedName("start")
         private long startMillis;
         @SerializedName("end")
         private long endMillis;
-
-
+        
+        
         private transient @Nullable Instant startInstant;
         private transient @Nullable Instant endInstant;
-
+        
         public TimeSlot(VEvent event) {
             this(event.getDateStart().getValue().toInstant(), event.getDateEnd().getValue().toInstant());
         }
-
+        
         public TimeSlot(@NotNull Instant start, @NotNull Instant end) {
             startMillis = start.toEpochMilli();
             endMillis = end.toEpochMilli();
             this.startInstant = start;
             this.endInstant = end;
         }
-
+        
         public @NotNull Instant getStart() {
-            if(startInstant == null) startInstant = Instant.ofEpochMilli(startMillis);
+            if (startInstant == null) startInstant = Instant.ofEpochMilli(startMillis);
             return startInstant;
         }
-
+        
         public @NotNull Instant getEnd() {
-            if(endInstant == null) endInstant = Instant.ofEpochMilli(startMillis);
+            if (endInstant == null) endInstant = Instant.ofEpochMilli(startMillis);
             return endInstant;
         }
-
+        
         public @NotNull Duration getDuration() {
             return Duration.between(startInstant, endInstant);
         }
-
+        
         public @NotNull Duration timeUntilStart(Instant now) {
             if (startInstant.isBefore(now)) return Duration.ZERO;
             else return Duration.between(now, startInstant);
         }
-
+        
         @Override
         public String toString() {
             return "TimeSlot{" +
