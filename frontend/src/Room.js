@@ -80,7 +80,10 @@ export default function Room(props) {
         <span className="Room-timeinfo">
             Ledigt&nbsp;
             {(() => {
-                if (Math.abs(new Date().getTime() - props.startTime) < 10_000) {
+                //console.log("new Date().getTime()",  new Date().getTime());
+                console.log(props.name, props.startTime);
+                console.log(props.name , " slut:",  props.endTime);
+                if (props.startTime - new Date().getTime() < 100000) {
                     return "nu"
                 } else {
                     return "från " + new Date(props.startTime).toLocaleTimeString('sv-SE', {
@@ -92,15 +95,18 @@ export default function Room(props) {
             &nbsp;
             {
                 (() => {
-                    let lastMin = new Date();
+                    let lastMin = new Date(props.startTime);
                     lastMin.setHours(23);
                     lastMin.setMinutes(59);
 
-                    if (lastMin.getTime() < props.endTime) {
+                    if (props.endTime > lastMin.getTime()) {
                         return "för resten av dagen."
                     } else {
-                        return "i " + Math.floor(props.duration / 3600000) + " timmar och " + Math.floor((props.duration % 3600000) / 60000) + " minuter."
-                    }
+                        let hours =  Math.floor(props.duration / 3600000);
+                        let minutes = Math.floor((props.duration % 3600000) / 60000);
+                        return "i " + 
+                        (hours != 0 ? hours + (hours == 1 ? " timme" : " timmar") : "") + 
+                        (minutes != 0 ? " och " + minutes + (minutes == 1 ? " minut" : " minuter") : "")    + "."                 }
                 })()
             }
         </span>

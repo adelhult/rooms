@@ -6,6 +6,7 @@ body {
   color:#f5f5f5;
   background: rgb(32,81,168);
   background: linear-gradient(135deg, rgba(32,81,168,1) 0%, rgba(80,14,144,1) 100%); 
+  background-attachment: fixed;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -17,6 +18,16 @@ a {
   color:inherit;
   text-decoration:underlined;
   transition:all 0.2s;
+}
+
+
+input {
+  padding:8px;
+  background:rgba(255, 255, 255, 0.555);
+  border:none;
+  margin-right:5px;
+  border-radius:0.3rem;
+  font-family: 'Open Sans', sans-serif;
 }
 
 

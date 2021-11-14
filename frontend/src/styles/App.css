@@ -20,6 +20,30 @@
   animation: 0.7s slideIn cubic-bezier(0.215, 0.610, 0.355, 1);
 }
 
+.App .App-options .App-showSettings-text {
+
+  opacity:0.4;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  user-select: none;
+}
+
+.App .App-options .App-options-more {
+  position:relative;
+  margin-top:1rem;
+  animation: slideIn 0.3s;
+}
+
+.App .App-options .App-showSettings-text:hover {
+  opacity:1;
+}
+
+.App .App-options .App-whiteboardToggle {
+  cursor:pointer;
+  user-select: none;
+}
+
+
 
 .App > header > h1 {
   position: relative;

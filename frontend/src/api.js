@@ -18,7 +18,7 @@ export const getRoomInfo = async roomName => new Promise((resolve, reject) => {
 export const getSuggestions = async (options = {}) => new Promise((resolve, reject) => {
   axiosInstance.get('/suggestions', {
     params: {
-      number: options.number ?? 10,
+      number: options.number ?? 1000,
       minSeats: options.minSeats ?? 4,
       minTime: options.minTime ?? 45,
       from: options.from ?? Date.now(),
