@@ -22,6 +22,7 @@ function App() {
                   large
                   name={rooms[0].name}
                   startTime={rooms[0].timeslot.start}
+                  endTime={rooms[0].timeslot.end}
                   duration={rooms[0].duration}
                   building={rooms[0].building}
                   seats={rooms[0].seatcount}
@@ -38,7 +39,7 @@ function App() {
             <Room
               name={room.name}
               startTime={room.timeslot.start}
-              duration={room.duration}
+              endTime={room.timeslot.end}
               duration={room.duration}
               building={room.building}
               seats={room.seatcount}
