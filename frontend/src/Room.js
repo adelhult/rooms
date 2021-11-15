@@ -97,16 +97,27 @@ export default function Room(props) {
                     lastMin.setMinutes(59);
 
                     if (props.endTime > lastMin.getTime()) {
-                        if (new Date(props.startTime).getHours >= 18) {
+                        if (new Date(props.startTime).getHours() >= 17) {
                             return "för resten av kvällen."
                         }
                         return "för resten av dagen."
                     } else {
                         let hours =  Math.floor(props.duration / 3600000);
                         let minutes = Math.floor((props.duration % 3600000) / 60000);
-                        return "i " + 
-                        (hours !== 0 ? hours + (hours === 1 ? " timme" : " timmar") : "") +
-                        (minutes !== 0 ? " och " + minutes + (minutes === 1 ? " minut" : " minuter") : "")    + "."                 }
+                        
+                        if (hours !== 0 && minutes !== 0) {
+                            return "i " + hours + (hours === 1 ? " timme" : " timmar") + " och " +
+                            + minutes + (minutes === 1 ? " minut" : " minuter") + ".";
+                        }
+                        if (hours !== 0 && minutes === 0) {
+                            return "i " + hours + (hours === 1 ? " timme" : " timmar") + ".";
+                        }
+                        if (hours === 0 && minutes !== 0) {
+                            return "i " + minutes + (minutes === 1 ? " minut" : " minuter") + ".";
+                        }
+                        
+                        return "";
+                    }
                 })()
             }
         </span>
