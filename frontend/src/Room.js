@@ -105,8 +105,8 @@ export default function Room(props) {
                         let hours =  Math.floor(props.duration / 3600000);
                         let minutes = Math.floor((props.duration % 3600000) / 60000);
                         return "i " + 
-                        (hours != 0 ? hours + (hours == 1 ? " timme" : " timmar") : "") + 
-                        (minutes != 0 ? " och " + minutes + (minutes == 1 ? " minut" : " minuter") : "")    + "."                 }
+                        (hours !== 0 ? hours + (hours === 1 ? " timme" : " timmar") : "") +
+                        (minutes !== 0 ? " och " + minutes + (minutes === 1 ? " minut" : " minuter") : "")    + "."                 }
                 })()
             }
         </span>
