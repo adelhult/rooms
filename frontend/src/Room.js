@@ -67,8 +67,8 @@ export default function Room(props) {
         </ul>
     }
 
-    return <div className="Room" key={props.name}>
-        <header onClick={() => setDisplayInfo(!displayInfo)}>
+    return <div className="Room" key={props.name} onClick={() => setDisplayInfo(!displayInfo)}>
+        <header>
             <h2 className={`Room-name ${props.large ? 'large' : ''}`}>{props.name}</h2>
             <FontAwesomeIcon
                 size="lg"
@@ -80,9 +80,6 @@ export default function Room(props) {
         <span className="Room-timeinfo">
             Ledigt&nbsp;
             {(() => {
-                //console.log("new Date().getTime()",  new Date().getTime());
-                console.log(props.name, props.startTime);
-                console.log(props.name , " slut:",  props.endTime);
                 if (props.startTime - new Date().getTime() < 100000) {
                     return "nu"
                 } else {
@@ -100,13 +97,16 @@ export default function Room(props) {
                     lastMin.setMinutes(59);
 
                     if (props.endTime > lastMin.getTime()) {
+                        if (new Date(props.startTime).getHours >= 18) {
+                            return "för resten av kvällen."
+                        }
                         return "för resten av dagen."
                     } else {
                         let hours =  Math.floor(props.duration / 3600000);
                         let minutes = Math.floor((props.duration % 3600000) / 60000);
                         return "i " + 
-                        (hours != 0 ? hours + (hours == 1 ? " timme" : " timmar") : "") + 
-                        (minutes != 0 ? " och " + minutes + (minutes == 1 ? " minut" : " minuter") : "")    + "."                 }
+                        (hours !== 0 ? hours + (hours === 1 ? " timme" : " timmar") : "") +
+                        (minutes !== 0 ? " och " + minutes + (minutes === 1 ? " minut" : " minuter") : "")    + "."                 }
                 })()
             }
         </span>
