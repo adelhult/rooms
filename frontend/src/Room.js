@@ -97,6 +97,9 @@ export default function Room(props) {
                     lastMin.setMinutes(59);
 
                     if (props.endTime > lastMin.getTime()) {
+                        if (new Date(props.startTime).getHours >= 18) {
+                            return "för resten av kvällen."
+                        }
                         return "för resten av dagen."
                     } else {
                         let hours =  Math.floor(props.duration / 3600000);
