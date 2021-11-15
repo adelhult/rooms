@@ -78,6 +78,9 @@ public class RestApi {
                                 if (!roomInfo.equipment.contains(thing))
                                     return false;
                             }
+
+                            if(roomInfo.roomType.contains("kvarn"))
+                                return false;
                             
                         } catch (Exception e) {
                             return false;
