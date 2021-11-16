@@ -57,7 +57,7 @@ export default function Room(props) {
             <li>
                 <FontAwesomeIcon className="Room-inlineIcon" icon={faMapMarkedAlt}/>
                 <a target="_blank"
-                   href={`https://www.google.se/maps/?q=loc:${props.latitude},${props.longitude}`}><strong>Länk till
+                   href={`https://www.google.com/maps/place/${props.latitude},${props.longitude}`}><strong>Länk till
                     karta</strong> </a>
             </li>
             <li>
