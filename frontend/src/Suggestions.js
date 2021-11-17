@@ -15,10 +15,11 @@ function Suggestions(props) {
       .catch(error => console.error(error));
   }, [props]);
 
-  const roomElements = rooms.map(room => (
+  const roomElements = rooms.map((room, index) => (
       <Room
         {...room}
         startTime={room.timeslot.start}
+        large={index == 0}
         key={room.name}
       />
   ));
