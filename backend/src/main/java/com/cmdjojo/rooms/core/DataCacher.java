@@ -141,7 +141,7 @@ public class DataCacher {
 
             Room.TimeSlot slot = new Room.TimeSlot(event);
             for (String roomName : roomNames) {
-                newData.rooms.putIfAbsent(roomName, new Room(roomName));
+                newData.rooms.computeIfAbsent(roomName, Room::new);
                 newData.rooms.get(roomName).bookings.add(slot);
             }
         }
@@ -213,6 +213,7 @@ public class DataCacher {
     }
 
     public static void cacheRoomInfo() {
+        assert getRooms() != null;
         cachedRoomInfo = new HashMap<>();
         for (String room : getRooms().keySet()) {
             var roomInfo = RoomInfo.getRoomInfo(room);
