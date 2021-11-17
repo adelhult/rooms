@@ -1,6 +1,7 @@
 package com.cmdjojo.rooms;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class RoomInfo {
-    static Gson gson = new Gson();
+    static Gson gson = new GsonBuilder().create();
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
 
     public static RoomInfo getRoomInfo(String room) {
@@ -36,7 +37,8 @@ public class RoomInfo {
                 roomInfo.info = roomInfo.info.replace(
                         "Behöver men hela rummet",
                         "Behöver man hela rummet"
-                ).replace("\n", "<br>");
+                ).replace("\n", ". ");
+                if (!roomInfo.info.endsWith(".")) roomInfo.info = roomInfo.info + ".";
             }
             roomInfo.chalmersMapsLink = "https://maps.chalmers.se/#" + docId;
             roomInfo.generalBuilding = geoJson.features[0].properties.buildingName;
