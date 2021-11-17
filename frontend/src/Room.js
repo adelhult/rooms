@@ -42,16 +42,18 @@ export default function Room(props) {
                 <strong>Byggnad: </strong>
                 <p>{props.building ?? "okänt"}</p>
             </li>
+            {props.equipment &&
             <li>
                 <FontAwesomeIcon className="Room-inlineIcon" icon={faChalkboard}/>
                 <strong>Utrustning: </strong>
                 <p>{props.equipment ?? "okänt"}</p>
             </li>
+            }
             {props.comment &&
             <li>
                 <FontAwesomeIcon className="Room-inlineIcon" icon={faCommentAlt}/>
                 <strong>Övrigt: </strong>
-                <p>{props.comments ?? "okänt"}</p>
+                <p>{props.comment ?? "okänt"}</p>
             </li>
             }
             <li>
