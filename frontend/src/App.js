@@ -1,68 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './styles/App.css';
 import Room from "./Room.js";
+import Suggestions from './Suggestions';
 import { getSuggestions } from './api';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import { faFilter } from '@fortawesome/free-solid-svg-icons'
-
-function Suggestions(props) {
-  const [rooms, setRooms] = useState([]);
-
-  useEffect(() => {
-    getSuggestions({
-      from: props.date.getTime(),
-      equipment: props.whiteboard ? "Whiteboard" : "",
-      minSeats: props.minSeats,
-    })
-      .then(rooms => setRooms(rooms))
-      .catch(error => console.error(error));
-  }, [props]);
-
-  return rooms.length > 0 ? <>
-      <header className="App-header">
-      <h1>Ledigt rum</h1>
-      <div className="App-featuredRoom">
-        <Room
-            large
-            name={rooms[0].name}
-            startTime={rooms[0].timeslot.start}
-            endTime={rooms[0].timeslot.end}
-            duration={rooms[0].duration}
-            building={rooms[0].building}
-            seats={rooms[0].seatcount}
-            comments={rooms[0].comment}
-            equipment={rooms[0].equipment}
-            chalmersMapsLink={rooms[0].chalmersMapsLink}
-            latitude={rooms[0].latitude}
-            longitude={rooms[0].longitude}
-        />
-      </div>
-    </header>
-
-    <h4>Fler förslag på rum</h4>
-    {
-      rooms.length < 2 ?
-        <p>Det finns inga fler förslag på rum.</p> :
-        rooms.slice(1).map(room => (
-          <Room
-            name={room.name}
-            startTime={room.timeslot.start}
-            endTime={room.timeslot.end}
-            duration={room.duration}
-            building={room.building}
-            seats={room.seatcount}
-            comments={room.comment}
-            equipment={room.equipment}
-            chalmersMapsLink={room.chalmersMapsLink}
-            latitude={room.latitude}
-            longitude={room.longitude}
-          />
-    ))}
-  </> : 
-  <h1>
-    Hittade inga rum :(
-  </h1>;
-}
 
 
 function App() {
