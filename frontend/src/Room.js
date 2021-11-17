@@ -92,7 +92,7 @@ export default function Room(props) {
             &nbsp;
             {
                 (() => {
-                    let lastMin = new Date(props.startTime);
+                    var lastMin = new Date(props.startTime);
                     lastMin.setHours(23);
                     lastMin.setMinutes(59);
 

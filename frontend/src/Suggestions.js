@@ -19,6 +19,7 @@ function Suggestions(props) {
       <Room
         {...room}
         startTime={room.timeslot.start}
+        endTime={room.timeslot.end}
         large={index == 0}
         key={room.name}
       />
