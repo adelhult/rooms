@@ -10,7 +10,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.NoSuchElementException;
 
 public class RoomInfo {
     static Gson gson = new Gson();
@@ -32,6 +31,7 @@ public class RoomInfo {
 
             var roomInfo = gson.fromJson(roomRes.body(), RoomInfo.class);
             roomInfo.chalmersMapsLink = "https://maps.chalmers.se/#" + docId;
+            roomInfo.generalBuilding = geoJson.features[0].properties.buildingName;
             roomInfo.latitude = geoJson.features[0].properties.latitude;
             roomInfo.longitude = geoJson.features[0].properties.longitude;
             return roomInfo;
@@ -103,6 +103,8 @@ class GeoJson {
     static class Properties {
         @SerializedName("timeedit_id")
         String timeeditId;
+        @SerializedName("building_name")
+        String buildingName;
         double latitude;
         double longitude;
     }

@@ -11,6 +11,7 @@ import io.javalin.core.JavalinConfig;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 
 
 public class RestApi {
-    private static Gson gson = new GsonBuilder()
+    private static final Gson gson = new GsonBuilder()
             .serializeNulls()
             .create();
     
@@ -63,8 +64,9 @@ public class RestApi {
             
             String[] equipment = Objects.requireNonNullElse(ctx.queryParam("equipment"), "")
                     .split(",");
-            
-            List<RoomDataSent> sortedRooms = DataCacher.getRooms()
+
+            List<RoomDataSent> sortedRooms =
+                    Objects.requireNonNullElse(DataCacher.getRooms(), Collections.<String, Room>emptyMap())
                     .values()
                     .stream()
                     .filter(room -> {
