@@ -31,7 +31,7 @@ public class Room {
     public @Nullable TimeSlot bookingAt(@NotNull Instant d) {
         Objects.requireNonNull(d);
         return bookings.stream()
-                .filter(booking -> (booking.startInstant.isBefore(d) || booking.startInstant.equals(d)) && booking.endInstant.isAfter(d))
+                .filter(booking -> (booking.getStart().isBefore(d) || booking.getStart().equals(d)) && booking.getEnd().isAfter(d))
                 .findFirst()
                 .orElse(null);
     }
@@ -48,7 +48,7 @@ public class Room {
         Objects.requireNonNull(d);
         Instant mustStartBefore = d.plus(within);
         return bookings.stream()
-                .filter(booking -> booking.startInstant.compareTo(mustStartBefore) < 0 && booking.endInstant.isAfter(d))
+                .filter(booking -> booking.getStart().compareTo(mustStartBefore) < 0 && booking.getEnd().isAfter(d))
                 .findAny()
                 .orElse(null);
     }
@@ -62,10 +62,11 @@ public class Room {
      * @param minDuration The minimum duration the slot may have
      * @return The next free slot which is at least minDuration long
      */
-    public @NotNull TimeSlot getNextFreeSlot(Instant d, Duration minDuration) {
+    public @NotNull TimeSlot getNextFreeSlot(@NotNull Instant d, Duration minDuration) {
         Instant startt = d;
         TimeSlot atStart;
         //as long as there is a booking within minDuration from
+        //noinspection ConstantConditions
         while ((atStart = findBookingWithin(startt, minDuration)) != null) startt = atStart.endInstant;
         
         final Instant start = startt;
