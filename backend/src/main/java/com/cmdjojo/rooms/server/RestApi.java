@@ -73,11 +73,13 @@ public class RestApi {
                         var roomInfo = DataCacher.getRoomInfo(room.name);
                         try {
                             // check minSeats
+                            //noinspection ConstantConditions
                             if (roomInfo.roomSeats < minSeats) {
                                 return false;
                             }
-                            
+
                             for (var thing : equipment) {
+                                if(thing.isBlank()) continue;
                                 if (!roomInfo.equipment.contains(thing))
                                     return false;
                             }
