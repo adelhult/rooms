@@ -2,6 +2,7 @@ package com.cmdjojo.rooms;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -13,6 +14,7 @@ import java.util.Arrays;
 
 public class RoomInfo {
     static Gson gson = new Gson();
+    private static final HttpClient CLIENT = HttpClient.newHttpClient();
 
     public static RoomInfo getRoomInfo(String room) {
         try {
@@ -30,6 +32,12 @@ public class RoomInfo {
             var roomRes = getFromUrl("http://maps.chalmers.se/v2/webservices/timeedit/room/" + URLEncoder.encode(roomId, StandardCharsets.UTF_8) + "/json");
 
             var roomInfo = gson.fromJson(roomRes.body(), RoomInfo.class);
+            if (roomInfo.info != null) {
+                roomInfo.info = roomInfo.info.replace(
+                        "Behöver men hela rummet",
+                        "Behöver man hela rummet"
+                );
+            }
             roomInfo.chalmersMapsLink = "https://maps.chalmers.se/#" + docId;
             roomInfo.generalBuilding = geoJson.features[0].properties.buildingName;
             roomInfo.latitude = geoJson.features[0].properties.latitude;
@@ -43,9 +51,8 @@ public class RoomInfo {
 
     private static HttpResponse<String> getFromUrl(String url) throws IOException, InterruptedException {
         URI uri = URI.create(url);
-        HttpClient client = HttpClient.newHttpClient();
         HttpRequest req = HttpRequest.newBuilder().GET().uri(uri).build();
-        return client.send(req, HttpResponse.BodyHandlers.ofString());
+        return CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
     }
 
     @SerializedName("room.id")
