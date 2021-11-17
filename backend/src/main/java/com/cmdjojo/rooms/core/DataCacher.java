@@ -109,11 +109,11 @@ public class DataCacher {
                             }
                         })).toArray(CompletableFuture[]::new)
         );
-        //TODO: Add info gather here
 
         try {
             allIcsResponses.get();
-            //TODO: Wait for info gather
+            if(cachedRoomInfo == null)
+                cacheRoomInfoAsync();
 
             status = CacheStatus.NEW_CACHE_PRESENT;
         } catch (InterruptedException | ExecutionException e) {
