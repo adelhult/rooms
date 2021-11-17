@@ -5,7 +5,6 @@ import com.cmdjojo.rooms.core.DataCacher;
 public class Main {
     public static void main(String... args) {
         RestApi.start();
-        DataCacher.cacheRoomInfoAsync();
         DataCacher.startCacheThread(10);
     }
 }
