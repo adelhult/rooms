@@ -6,8 +6,14 @@ import biweekly.component.VEvent;
 import com.cmdjojo.rooms.RoomInfo;
 import com.cmdjojo.rooms.structs.Room;
 import com.google.gson.Gson;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -19,6 +25,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -38,7 +45,6 @@ public class DataCacher {
 
     static {
         ICS_URLS = List.of(
-                //"https://cloud.timeedit.net/chalmers/web/public/ri6Y623XX55Z64Q186665066560753587461446Q617XXX2885142276X6566485XX47274X456X794262461XX5770855565276X62764544655X865776765X67WXX6X6858855874X86454X6456867264668X55664X1X984783455858XX664468156Y6665X5366XXX767836648566X5X666395446635614557XX66888765X36255W68730495X7846652864X55516565XY77X666X3347X6375X34Q6487X6X7y376654X46X6n87X7Z566Z445667518Q7Z555t656Ft815637A3dZ6C3C85FQ8398452DB8C8FA76F5QE6.ics"
                 "https://cloud.timeedit.net/chalmers/web/public/ri6Y623XX55Z64Q186665066560753587461446Q617XXX2885142276X6566485XX47274X456X794262461XX5770855565276X62764544655X865776765X67WXX6X6858855874X86454X6456867264668X55664X1X984783455858XX664468156Y6665X5366XXX767836648566X5X666395446635614557XX66888765X36255W68730495X7846652864X55516565XY77X666X3347X6375X3406487X6X76376654X4XX6887X7X596644566751827650686999X5XX666904369696766088969666010609990XXXX9690006666XW60108XXX62120X3092525656081XX816196666865YX83720600808X1668646868826XX8X8932X66266X20000X6626255580881X26800X6X420226066262XX76002776788886X6807XX2286276808886X6X7X387Y05700W820883XX08225206X1846677Z67Q096X225205ZyQ8Xn86185.ics"
         );
 
@@ -64,7 +70,7 @@ public class DataCacher {
     /**
      * Starts the cache thread with the specified duration as cache interval
      *
-     * @param duration The duration in second between each cache
+     * @param duration The duration in seconds between each cache
      * @return True if the thread wasn't already started, false otherwise
      */
     public static boolean startCacheThread(final int duration) {
@@ -116,6 +122,11 @@ public class DataCacher {
         }
     }
 
+    /**
+     * Accepts ical data as a string, and adds it to the cache map of the rooms
+     *
+     * @param s The ical data to save in cache
+     */
     private static void acceptNewIcsData(String s) {
         ICalendar cal = Biweekly.parse(s).first();
         for (VEvent event : cal.getEvents()) {
@@ -136,6 +147,13 @@ public class DataCacher {
         }
     }
 
+    /**
+     * Gets a map between room names and room information, which contains information about bookings, and can derive
+     * time slots where it's free
+     *
+     * @return An map of the rooms, if one exists in cache, otherwise null
+     */
+    @Nullable
     public static Map<String, Room> getRooms() {
         synchronized (LOCK) {
             if (status == CacheStatus.NEVER_LOADED) return null;
@@ -144,9 +162,17 @@ public class DataCacher {
         }
     }
 
-    public static boolean writeToFile(File f) {
-        try (FileWriter fw = new FileWriter(f)){
-            synchronized(LOCK) {
+    /**
+     * Writes the Room map cache as JSON to the specified file. If no cache exists, no write will occur and the method
+     * will return false.
+     *
+     * @param f The file to write to
+     * @return Whether the write succeeded.
+     */
+    public static boolean writeToFile(@NotNull File f) {
+        Objects.requireNonNull(f);
+        try (FileWriter fw = new FileWriter(f)) {
+            synchronized (LOCK) {
                 if (status == CacheStatus.NEW_CACHE_PRESENT) {
                     new Gson().toJson(newData, fw);
                 } else {
@@ -162,24 +188,32 @@ public class DataCacher {
     }
 
 
+    /**
+     * Loads the Room map cache as JSON from the specified file. If no file exists, the method will return false
+     *
+     * @param f The file which contains the cache to load
+     * @return Whether the operation succeeds
+     */
     public static boolean loadFromFile(File f) {
-        try {
-            newData = new Gson().fromJson(new FileReader(f), Data.class);
-            status = CacheStatus.NEW_CACHE_PRESENT;
-            return true;
-        } catch (FileNotFoundException e) {
-            System.err.println("Could not load cached data!");
-            e.printStackTrace();
-            return false;
+        synchronized (LOCK) {
+            try {
+                newData = new Gson().fromJson(new FileReader(f), Data.class);
+                status = CacheStatus.NEW_CACHE_PRESENT;
+                return true;
+            } catch (FileNotFoundException e) {
+                System.err.println("Could not load cached data!");
+                e.printStackTrace();
+                return false;
+            }
         }
     }
 
     public static void cacheRoomInfoAsync() {
         new Thread(DataCacher::cacheRoomInfo).start();
     }
-    
+
     public static void cacheRoomInfo() {
-        cachedRoomInfo = new HashMap<String, RoomInfo>();
+        cachedRoomInfo = new HashMap<>();
         for (String room : getRooms().keySet()) {
             var roomInfo = RoomInfo.getRoomInfo(room);
             if (roomInfo != null) {
@@ -201,7 +235,7 @@ enum CacheStatus {
 }
 
 class Data {
-    Map<String, Room> rooms;
+    HashMap<String, Room> rooms;
 
     public Data() {
         this.rooms = new HashMap<>();
