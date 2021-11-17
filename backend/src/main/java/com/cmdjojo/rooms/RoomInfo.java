@@ -1,6 +1,7 @@
 package com.cmdjojo.rooms;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class RoomInfo {
-    static Gson gson = new Gson();
+    static Gson gson = new GsonBuilder().disableHtmlEscaping().create();
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
 
     public static RoomInfo getRoomInfo(String room) {
