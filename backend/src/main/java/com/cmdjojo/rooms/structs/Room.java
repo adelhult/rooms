@@ -171,11 +171,11 @@ public class Room {
         }
         
         public @NotNull Duration getDuration() {
-            return Duration.between(startInstant, endInstant);
+            return Duration.between(getStart(), getEnd());
         }
         
         public @NotNull Duration timeUntilStart(Instant now) {
-            if (startInstant.isBefore(now)) return Duration.ZERO;
+            if (getStart().isBefore(now)) return Duration.ZERO;
             else return Duration.between(now, startInstant);
         }
         
