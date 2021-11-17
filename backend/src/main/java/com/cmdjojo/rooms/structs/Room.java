@@ -83,7 +83,7 @@ public class Room {
         Duration usedFreeDuration = assignedSlot.getDuration().compareTo(MAX_GOODNESS_DURATION) < 0 ?
                 assignedSlot.getDuration() : MAX_GOODNESS_DURATION;
         Duration timeUntilFree = Duration.between(d, assignedSlot.getStart()).multipliedBy(20);
-        long time = usedFreeDuration.toMinutes() - timeUntilFree.toMinutes() + 100_000;
+        long time = usedFreeDuration.toMinutes() - timeUntilFree.toMinutes() + 10_000;
         return (int) (time * getPriority().timeMultiplier);
     }
     
