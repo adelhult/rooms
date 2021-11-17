@@ -11,7 +11,8 @@ function Suggestions(props) {
   useEffect(() => {
     getSuggestions({
       from: props.date.getTime(),
-      equipment: props.whiteboard ? "Whiteboard" : ""
+      equipment: props.whiteboard ? "Whiteboard" : "",
+      minSeats: props.minSeats,
     })
       .then(rooms => setRooms(rooms))
       .catch(error => console.error(error));
@@ -19,7 +20,7 @@ function Suggestions(props) {
 
   return rooms.length > 0 ? <>
       <header className="App-header">
-      <h1>Här är det ledigt</h1>
+      <h1>Ledigt rum</h1>
       <div className="App-featuredRoom">
         <Room
             large
@@ -39,28 +40,35 @@ function Suggestions(props) {
     </header>
 
     <h4>Fler förslag på rum</h4>
-    {rooms.slice(1).map(room => (
-      <Room
-        name={room.name}
-        startTime={room.timeslot.start}
-        endTime={room.timeslot.end}
-        duration={room.duration}
-        building={room.building}
-        seats={room.seatcount}
-        comments={room.comment}
-        equipment={room.equipment}
-        chalmersMapsLink={room.chalmersMapsLink}
-        latitude={room.latitude}
-        longitude={room.longitude}
-      />
+    {
+      rooms.length < 2 ?
+        <p>Det finns inga fler förslag på rum.</p> :
+        rooms.slice(1).map(room => (
+          <Room
+            name={room.name}
+            startTime={room.timeslot.start}
+            endTime={room.timeslot.end}
+            duration={room.duration}
+            building={room.building}
+            seats={room.seatcount}
+            comments={room.comment}
+            equipment={room.equipment}
+            chalmersMapsLink={room.chalmersMapsLink}
+            latitude={room.latitude}
+            longitude={room.longitude}
+          />
     ))}
-  </> : '';
+  </> : 
+  <h1>
+    Hittade inga rum :(
+  </h1>;
 }
 
 
 function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [whiteboard, setWhiteboard] = useState(false);
+  const [minSeats, setMinSeats] = useState(1);
 
   const today = new Date();
   const [date, setDate] = useState(today.toISOString().split('T')[0]);
@@ -99,6 +107,7 @@ function App() {
           {
           showSettings &&
             <div className="App-options-more">
+              <label>Datum och tid</label>
               <input type="date" id="start" name="trip-start"
                 value={date}
                 min={today.toLocaleDateString()}
@@ -111,8 +120,17 @@ function App() {
                   setHours(h);
                   setMinutes(m);
                }}/>
-              <br/>
-               <span className="App-whiteboardToggle" onClick={() => setWhiteboard(!whiteboard)}>
+              <label>Minsta antalet stolar</label>
+              
+              <input
+                type="number"
+                min="0" max="1000"
+                onChange={e => setMinSeats(e.target.value)}
+                value={minSeats}
+              />
+
+              <label>Övrigt</label> 
+              <span className="App-whiteboardToggle" onClick={() => setWhiteboard(!whiteboard)}>
                  Endast rum med whiteboard: {whiteboard ? "Ja" : "Nej"}
                </span>
             </div>
@@ -121,6 +139,7 @@ function App() {
         <Suggestions
           date={getDate()} 
           whiteboard={whiteboard}
+          minSeats={minSeats}
         />
     </div>
     

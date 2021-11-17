@@ -67,8 +67,8 @@ export default function Room(props) {
         </ul>
     }
 
-    return <div className="Room" key={props.name} onClick={() => setDisplayInfo(!displayInfo)}>
-        <header>
+    return <div className="Room" key={props.name}>
+        <header onClick={() => setDisplayInfo(!displayInfo)}>
             <h2 className={`Room-name ${props.large ? 'large' : ''}`}>{props.name}</h2>
             <FontAwesomeIcon
                 size="lg"

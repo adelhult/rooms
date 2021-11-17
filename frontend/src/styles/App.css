@@ -16,13 +16,12 @@
   background:rgba(255, 255, 255, 0.144);
   border-radius: 0.5rem;
   box-shadow: 0 0.1rem 0.3rem rgba(0, 0, 0, 0.281);
-  margin-bottom:20vh;
+  margin-bottom:5rem;
   animation: 0.7s slideIn cubic-bezier(0.215, 0.610, 0.355, 1);
 }
 
 .App .App-options .App-showSettings-text {
-
-  opacity:0.4;
+  opacity:0.6;
   cursor: pointer;
   transition: all 0.3s ease-in-out;
   user-select: none;
@@ -32,6 +31,17 @@
   position:relative;
   margin-top:1rem;
   animation: slideIn 0.3s;
+}
+
+.App .App-options label {
+  display: block;
+  font-weight: bold;
+  margin-bottom:0.5rem;
+  margin-top:1rem;
+}
+
+.App .App-options input[type="number"] {
+  width: 4rem;
 }
 
 .App .App-options .App-showSettings-text:hover {

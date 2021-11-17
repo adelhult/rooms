@@ -2,15 +2,15 @@ body {
   margin: 0;
   padding:0;
   font-family: 'Open Sans', sans-serif;
-  background-color: #1B4A9C;
-  color:#f5f5f5;
-  background: rgb(32,81,168);
-  background: linear-gradient(135deg, rgba(32,81,168,1) 0%, rgba(80,14,144,1) 100%); 
+  color:white;
+  background: #e64f21;  /* fallback for old browsers */
+  background: linear-gradient(135deg, #ec8e0a, #e64f21); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */  
   background-attachment: fixed;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Sora', sans-serif;
+  text-shadow: 0px 2px 2px rgba(0, 0, 0, 0.089);
 }
 
 
