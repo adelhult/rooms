@@ -43,6 +43,7 @@ public class RestApi {
     }
     
     public static void start() {
+        System.out.println("Staring REST Api listener...");
         Javalin app = Javalin.create(JavalinConfig::enableCorsForAllOrigins).start(port);
         app.get("/info/{roomName}", ctx -> {
             String roomName = ctx.pathParam("roomName");
