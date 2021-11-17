@@ -222,6 +222,7 @@ public class DataCacher {
         }
     }
 
+    @Nullable
     public static RoomInfo getRoomInfo(String room) {
         if (cachedRoomInfo == null) return null;
         return cachedRoomInfo.get(room);
