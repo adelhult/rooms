@@ -35,7 +35,7 @@ export default function Room(props) {
         return <ul>
             <li>
                 <FontAwesomeIcon className="Room-inlineIcon" icon={faChair}/>
-                <strong>Antal platser: </strong> {props.seats ?? "okänt"}
+                <strong>Antal platser: </strong> {props.seatcount ?? "okänt"}
             </li>
             <li>
                 <FontAwesomeIcon className="Room-inlineIcon" icon={faBuilding}/>
