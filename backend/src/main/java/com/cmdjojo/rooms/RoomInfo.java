@@ -36,7 +36,7 @@ public class RoomInfo {
                 roomInfo.info = roomInfo.info.replace(
                         "Behöver men hela rummet",
                         "Behöver man hela rummet"
-                );
+                ).replace("\n", "<br>");
             }
             roomInfo.chalmersMapsLink = "https://maps.chalmers.se/#" + docId;
             roomInfo.generalBuilding = geoJson.features[0].properties.buildingName;
