@@ -82,7 +82,7 @@ public class Room {
         Duration usedFreeDuration = assignedSlot.getDuration().compareTo(MAX_GOODNESS_DURATION) < 0 ?
                 assignedSlot.getDuration() : MAX_GOODNESS_DURATION;
         Duration timeUntilFree = Duration.between(d, assignedSlot.getStart()).multipliedBy(20);
-        long time = usedFreeDuration.toMinutes() - timeUntilFree.toMinutes();
+        long time = usedFreeDuration.toMinutes() - timeUntilFree.toMinutes() + 100_000;
         return (int) (time * getPriority().timeMultiplier);
     }
     
@@ -117,7 +117,9 @@ public class Room {
         EDIT_FLOOR_4("EG-4.+"),
         EDIT_FLOOR_5("EG-5.+"),
         EDIT_FLOOR_6("EG-6.+"),
-        UNKNOWN(".*");
+        MASKIN("M.+"),
+        FYSIK("F.+"),
+        UNKNOWN("");
         
         private final Pattern pattern;
         public final double timeMultiplier;
@@ -131,6 +133,7 @@ public class Room {
             for (Priority value : values()) {
                 if (value.pattern.matcher(name).matches()) return value;
             }
+            System.out.printf("Room %s has no priority set%n", name);
             return UNKNOWN;
         }
     }
