@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class RoomInfo {
-    static Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+    static Gson gson = new GsonBuilder().create();
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
 
     public static RoomInfo getRoomInfo(String room) {
@@ -37,7 +37,7 @@ public class RoomInfo {
                 roomInfo.info = roomInfo.info.replace(
                         "Behöver men hela rummet",
                         "Behöver man hela rummet"
-                ).replace("\n", "<br>");
+                ).replace("\n", ". ") + ".";
             }
             roomInfo.chalmersMapsLink = "https://maps.chalmers.se/#" + docId;
             roomInfo.generalBuilding = geoJson.features[0].properties.buildingName;
