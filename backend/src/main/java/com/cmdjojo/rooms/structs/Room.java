@@ -31,7 +31,7 @@ public class Room {
     public @Nullable TimeSlot bookingAt(@NotNull Instant d) {
         Objects.requireNonNull(d);
         return bookings.stream()
-                .filter(booking -> (booking.startInstant.isBefore(d) || booking.startInstant.equals(d)) && booking.endInstant.isAfter(d))
+                .filter(booking -> (booking.getStart().isBefore(d) || booking.getStart().equals(d)) && booking.getEnd().isAfter(d))
                 .findFirst()
                 .orElse(null);
     }
@@ -48,7 +48,7 @@ public class Room {
         Objects.requireNonNull(d);
         Instant mustStartBefore = d.plus(within);
         return bookings.stream()
-                .filter(booking -> booking.startInstant.compareTo(mustStartBefore) < 0 && booking.endInstant.isAfter(d))
+                .filter(booking -> booking.getStart().compareTo(mustStartBefore) < 0 && booking.getEnd().isAfter(d))
                 .findAny()
                 .orElse(null);
     }
@@ -62,10 +62,11 @@ public class Room {
      * @param minDuration The minimum duration the slot may have
      * @return The next free slot which is at least minDuration long
      */
-    public @NotNull TimeSlot getNextFreeSlot(Instant d, Duration minDuration) {
+    public @NotNull TimeSlot getNextFreeSlot(@NotNull Instant d, Duration minDuration) {
         Instant startt = d;
         TimeSlot atStart;
         //as long as there is a booking within minDuration from
+        //noinspection ConstantConditions
         while ((atStart = findBookingWithin(startt, minDuration)) != null) startt = atStart.endInstant;
         
         final Instant start = startt;
@@ -82,7 +83,7 @@ public class Room {
         Duration usedFreeDuration = assignedSlot.getDuration().compareTo(MAX_GOODNESS_DURATION) < 0 ?
                 assignedSlot.getDuration() : MAX_GOODNESS_DURATION;
         Duration timeUntilFree = Duration.between(d, assignedSlot.getStart()).multipliedBy(20);
-        long time = usedFreeDuration.toMinutes() - timeUntilFree.toMinutes();
+        long time = usedFreeDuration.toMinutes() - timeUntilFree.toMinutes() + 100_000;
         return (int) (time * getPriority().timeMultiplier);
     }
     
@@ -117,7 +118,9 @@ public class Room {
         EDIT_FLOOR_4("EG-4.+"),
         EDIT_FLOOR_5("EG-5.+"),
         EDIT_FLOOR_6("EG-6.+"),
-        UNKNOWN(".*");
+        MASKIN("M.+"),
+        FYSIK("F.+"),
+        UNKNOWN("");
         
         private final Pattern pattern;
         public final double timeMultiplier;
@@ -131,6 +134,7 @@ public class Room {
             for (Priority value : values()) {
                 if (value.pattern.matcher(name).matches()) return value;
             }
+            System.out.printf("Room %s has no priority set%n", name);
             return UNKNOWN;
         }
     }
@@ -168,11 +172,11 @@ public class Room {
         }
         
         public @NotNull Duration getDuration() {
-            return Duration.between(startInstant, endInstant);
+            return Duration.between(getStart(), getEnd());
         }
         
         public @NotNull Duration timeUntilStart(Instant now) {
-            if (startInstant.isBefore(now)) return Duration.ZERO;
+            if (getStart().isBefore(now)) return Duration.ZERO;
             else return Duration.between(now, startInstant);
         }
         
