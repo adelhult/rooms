@@ -127,7 +127,7 @@ public class Room {
         
         Priority(String regex) {
             pattern = Pattern.compile(regex);
-            timeMultiplier = Math.pow(0.96, ordinal());
+            timeMultiplier = Math.pow(0.99, ordinal());
         }
         
         static Priority search(String name) {
