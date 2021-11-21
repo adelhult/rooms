@@ -39,6 +39,10 @@ public class RoomInfo {
                         "Behöver man hela rummet"
                 ).replace("\n", ". ");
                 if (!roomInfo.info.endsWith(".")) roomInfo.info = roomInfo.info + ".";
+
+                if (roomInfo.roomName.startsWith("EG-3213")) {
+                    roomInfo.info = roomInfo.info.replace("EG-3211A", "EG3213A");
+                }
             }
             roomInfo.chalmersMapsLink = "https://maps.chalmers.se/#" + docId;
             roomInfo.generalBuilding = geoJson.features[0].properties.buildingName;

@@ -26,8 +26,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class DataCacher {
@@ -112,10 +115,15 @@ public class DataCacher {
 
         try {
             allIcsResponses.get();
-            if(cachedRoomInfo == null)
-                cacheRoomInfoAsync();
-
             status = CacheStatus.NEW_CACHE_PRESENT;
+
+            Map<String, Room> rooms = getRooms();
+            if (rooms != null) {
+                Set<String> missingRoomInfos = getRooms().keySet();
+                if (cachedRoomInfo != null) missingRoomInfos.removeAll(cachedRoomInfo.keySet());
+                ExecutorService s = Executors.newFixedThreadPool(8);
+                missingRoomInfos.forEach(roomName -> s.submit(() -> RoomInfo.getRoomInfo(roomName)));
+            }
         } catch (InterruptedException | ExecutionException e) {
             System.err.println("Something went wrong when waiting for ical responses");
             e.printStackTrace();
