@@ -121,8 +121,10 @@ public class DataCacher {
             if (rooms != null) {
                 Set<String> missingRoomInfos = getRooms().keySet();
                 if (cachedRoomInfo != null) missingRoomInfos.removeAll(cachedRoomInfo.keySet());
+                else cachedRoomInfo = new HashMap<>(missingRoomInfos.size());
                 ExecutorService s = Executors.newFixedThreadPool(8);
-                missingRoomInfos.forEach(roomName -> s.submit(() -> RoomInfo.getRoomInfo(roomName)));
+                missingRoomInfos.forEach(roomName -> s.submit(() ->
+                        cachedRoomInfo.put(roomName, RoomInfo.getRoomInfo(roomName))));
             }
         } catch (InterruptedException | ExecutionException e) {
             System.err.println("Something went wrong when waiting for ical responses");
