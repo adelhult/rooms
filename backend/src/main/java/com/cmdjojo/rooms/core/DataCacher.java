@@ -23,6 +23,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -97,7 +98,7 @@ public class DataCacher {
     public static void cacheNewInstantly() {
         synchronized (LOCK) {
             oldData = newData;
-            status = CacheStatus.NEW_CACHE_COMMENCING;
+            status = CacheStatus.USE_OLD_CACHE;
         }
         newData = new Data();
         System.out.printf("Caching new data from %d ics urls...%n", ICS_REQS.size());
@@ -115,11 +116,11 @@ public class DataCacher {
 
         try {
             allIcsResponses.get();
-            status = CacheStatus.NEW_CACHE_PRESENT;
+            status = CacheStatus.USE_NEW_CACHE;
 
             Map<String, Room> rooms = getRooms();
             if (rooms != null) {
-                Set<String> missingRoomInfos = getRooms().keySet();
+                Set<String> missingRoomInfos = new HashSet<>(getRooms().keySet());
                 if (cachedRoomInfo != null) missingRoomInfos.removeAll(cachedRoomInfo.keySet());
                 else cachedRoomInfo = new HashMap<>(missingRoomInfos.size());
                 ExecutorService s = Executors.newFixedThreadPool(8);
@@ -166,9 +167,11 @@ public class DataCacher {
     @Nullable
     public static Map<String, Room> getRooms() {
         synchronized (LOCK) {
-            if (status == CacheStatus.NEVER_LOADED) return null;
-            else if (status == CacheStatus.NEW_CACHE_PRESENT) return newData.rooms;
-            else return oldData.rooms;
+            return switch (status) {
+                case NEVER_LOADED -> null;
+                case USE_NEW_CACHE -> newData.rooms;
+                case USE_OLD_CACHE -> oldData.rooms;
+            };
         }
     }
 
@@ -183,7 +186,7 @@ public class DataCacher {
         Objects.requireNonNull(f);
         try (FileWriter fw = new FileWriter(f)) {
             synchronized (LOCK) {
-                if (status == CacheStatus.NEW_CACHE_PRESENT) {
+                if (status == CacheStatus.USE_NEW_CACHE) {
                     new Gson().toJson(newData, fw);
                 } else {
                     new Gson().toJson(oldData, fw);
@@ -208,7 +211,7 @@ public class DataCacher {
         synchronized (LOCK) {
             try {
                 newData = new Gson().fromJson(new FileReader(f), Data.class);
-                status = CacheStatus.NEW_CACHE_PRESENT;
+                status = CacheStatus.USE_NEW_CACHE;
                 return true;
             } catch (FileNotFoundException e) {
                 System.err.println("Could not load cached data!");
@@ -235,6 +238,7 @@ public class DataCacher {
 
     @Nullable
     public static RoomInfo getRoomInfo(String room) {
+        System.out.println("room info req for room " + room + ", sice = " + cachedRoomInfo.size());
         if (cachedRoomInfo == null) return null;
         return cachedRoomInfo.get(room);
     }
@@ -242,8 +246,8 @@ public class DataCacher {
 
 enum CacheStatus {
     NEVER_LOADED,
-    NEW_CACHE_PRESENT,
-    NEW_CACHE_COMMENCING
+    USE_NEW_CACHE,
+    USE_OLD_CACHE
 }
 
 class Data {

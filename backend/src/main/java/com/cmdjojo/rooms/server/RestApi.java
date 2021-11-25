@@ -22,9 +22,9 @@ public class RestApi {
     private static final Gson gson = new GsonBuilder()
             .serializeNulls()
             .create();
-    
+
     private static final int port = 8080;
-    
+
     private static int parseOr(String s, int defaultValue) {
         if (s == null) return defaultValue;
         try {
@@ -33,7 +33,7 @@ public class RestApi {
             return defaultValue;
         }
     }
-    
+
     private static long parseOr(String s, long defaultValue) {
         if (s == null) return defaultValue;
         try {
@@ -42,7 +42,7 @@ public class RestApi {
             return defaultValue;
         }
     }
-    
+
     public static void start() {
         System.out.println("Staring REST Api listener...");
         Javalin app = Javalin.create(JavalinConfig::enableCorsForAllOrigins).start(port);
@@ -51,8 +51,8 @@ public class RestApi {
             var info = DataCacher.getRoomInfo(roomName);
             ctx.result(gson.toJson(info));
         });
-        
-        
+
+
         app.get("/suggestions", ctx -> {
             // get params or else set default values
             int number = parseOr(ctx.queryParam("number"), 1);
@@ -61,47 +61,47 @@ public class RestApi {
             long from = parseOr(ctx.queryParam("from"), System.currentTimeMillis());
             Instant fromDateTime = Instant.ofEpochMilli(from);
             Duration minTime = Duration.of(minTimeInt, ChronoUnit.MINUTES);
-            
+
             String[] equipment = Objects.requireNonNullElse(ctx.queryParam("equipment"), "")
                     .split(",");
 
             List<RoomDataSent> sortedRooms =
                     Objects.requireNonNullElse(DataCacher.getRooms(), Collections.<String, Room>emptyMap())
-                    .values()
-                    .stream()
-                    .filter(room -> {
-                        var roomInfo = DataCacher.getRoomInfo(room.name);
-                        try {
-                            // check minSeats
-                            //noinspection ConstantConditions
-                            if (roomInfo.roomSeats < minSeats) {
-                                return false;
-                            }
+                            .values()
+                            .stream()
+                            .filter(room -> {
+                                var roomInfo = DataCacher.getRoomInfo(room.name);
+                                try {
+                                    // check minSeats
+                                    //noinspection ConstantConditions
+                                    if (roomInfo.roomSeats < minSeats) {
+                                        return false;
+                                    }
 
-                            for (var thing : equipment) {
-                                if(thing.isBlank()) continue;
-                                if (!roomInfo.equipment.contains(thing))
+                                    for (var thing : equipment) {
+                                        if (thing.isBlank()) continue;
+                                        if (!roomInfo.equipment.contains(thing))
+                                            return false;
+                                    }
+
+                                    if (roomInfo.roomType.contains("kvarn"))
+                                        return false;
+
+                                } catch (Exception e) {
                                     return false;
-                            }
+                                }
+                                return true;
+                            })
+                            .map(room -> new RoomDataSent(room, fromDateTime, minTime, DataCacher.getRoomInfo(room.name)))
+                            .sorted(Comparator.comparingInt(rds -> -rds.goodnessScore))
+                            .limit(number)
+                            .collect(Collectors.toList());
 
-                            if(roomInfo.roomType.contains("kvarn"))
-                                return false;
-                            
-                        } catch (Exception e) {
-                            return false;
-                        }
-                        return true;
-                    })
-                    .map(room -> new RoomDataSent(room, fromDateTime, minTime, DataCacher.getRoomInfo(room.name)))
-                    .sorted(Comparator.comparingInt(rds -> -rds.goodnessScore))
-                    .limit(number)
-                    .collect(Collectors.toList());
-            
             ctx.contentType("application/json");
             ctx.result(gson.toJson(sortedRooms));
         });
     }
-    
+
     static class RoomDataSent {
         String name;
         Room.TimeSlot timeslot;
@@ -114,7 +114,7 @@ public class RestApi {
         double longitude;
         long duration;
         int goodnessScore;
-        
+
         RoomDataSent(Room room, Instant fromDateTime, Duration minTime, RoomInfo roomInfo) {
             name = room.name;
             timeslot = room.getNextFreeSlot(fromDateTime, minTime);
@@ -131,5 +131,5 @@ public class RestApi {
             duration = timeslot.getDuration().toMillis();
         }
     }
-    
+
 }
