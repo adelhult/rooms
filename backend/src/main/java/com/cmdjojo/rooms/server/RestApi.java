@@ -23,7 +23,7 @@ public class RestApi {
             .serializeNulls()
             .create();
 
-    private static final int port = 8080;
+    private static final int PORT = 8080;
 
     private static int parseOr(String s, int defaultValue) {
         if (s == null) return defaultValue;
@@ -45,7 +45,7 @@ public class RestApi {
 
     public static void start() {
         System.out.println("Staring REST Api listener...");
-        Javalin app = Javalin.create(JavalinConfig::enableCorsForAllOrigins).start(port);
+        Javalin app = Javalin.create(JavalinConfig::enableCorsForAllOrigins).start(PORT);
         app.get("/info/{roomName}", ctx -> {
             String roomName = ctx.pathParam("roomName");
             var info = DataCacher.getRoomInfo(roomName);
