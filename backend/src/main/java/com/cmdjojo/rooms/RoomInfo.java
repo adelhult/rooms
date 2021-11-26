@@ -40,8 +40,8 @@ public class RoomInfo {
                 ).replace("\n", ". ");
                 if (!roomInfo.info.endsWith(".")) roomInfo.info = roomInfo.info + ".";
 
-                if (roomInfo.roomName.startsWith("EG-3213")) {
-                    roomInfo.info = roomInfo.info.replace("EG-3211A", "EG3213A");
+                if (room.equals("EG-3213B")) {
+                    roomInfo.info = roomInfo.info.replace("EG-3211A", "EG-3213A");
                 }
             }
             roomInfo.chalmersMapsLink = "https://maps.chalmers.se/#" + docId;
