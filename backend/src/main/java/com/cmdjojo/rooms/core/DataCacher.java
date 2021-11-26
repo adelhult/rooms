@@ -238,7 +238,6 @@ public class DataCacher {
 
     @Nullable
     public static RoomInfo getRoomInfo(String room) {
-        System.out.println("room info req for room " + room + ", sice = " + cachedRoomInfo.size());
         if (cachedRoomInfo == null) return null;
         return cachedRoomInfo.get(room);
     }
