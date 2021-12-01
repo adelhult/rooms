@@ -26,7 +26,7 @@ function Suggestions(props) {
   return roomElements.length > 0 ? <>
     <header className="App-header">
       <h1>Grupprumsförslag</h1>
-      <div className="App-featuredRoom">
+      <div className="featuredRoom">
         {roomElements[0]}
       </div>
     </header>
