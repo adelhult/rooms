@@ -106,6 +106,34 @@ public class Room {
         return Duration.between(d, getNextFreeSlot(d, minDuration).startInstant);
     }
 
+    /**
+     * During holiday and exam season every room has a
+     * booking with meta just info. These should not count as real
+     * bookings.
+     * @param booking
+     * @return true if it is a valid booking.
+     */
+    public static boolean validBooking(TimeSlot booking) {
+        if (booking.summary.contains("Holiday")) return false;
+        if (booking.summary.contains("tenta")) return false;
+        if (booking.summary.contains("studie")) return false;
+        return true;
+    }
+
+    /**
+     * Some A & B rooms appear in the public schedule but are not
+     * actually able to be booked by students. (However, they are in some cases
+     * booked by teachers together with multiple other rooms for exercise sessions.
+     *
+     * To programmatically remove these rooms we check if there are any bookings of the room at all
+     * (and disregarding bookings were multiple rooms are booked at
+     * the same time, which is the case for exercise sessions.)
+     * @return true if it is a ghost
+     */
+    public boolean isGhostRoom() {
+        return bookings.stream().noneMatch(r -> r.singleRoomBooking);
+    }
+
     @Override
     public String toString() {
         return "Room{" +
@@ -149,13 +177,17 @@ public class Room {
         private long startMillis;
         @SerializedName("end")
         private long endMillis;
+        private String summary;
 
+        boolean singleRoomBooking;
 
         private transient @Nullable Instant startInstant;
         private transient @Nullable Instant endInstant;
 
         public TimeSlot(VEvent event) {
             this(event.getDateStart().getValue().toInstant(), event.getDateEnd().getValue().toInstant());
+            this.summary = event.getSummary().getValue();
+            this.singleRoomBooking = !event.getLocation().getValue().contains(",");
         }
 
         public TimeSlot(@NotNull Instant start, @NotNull Instant end) {

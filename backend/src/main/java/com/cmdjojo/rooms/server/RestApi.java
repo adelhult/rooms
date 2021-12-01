@@ -11,10 +11,7 @@ import io.javalin.core.JavalinConfig;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -72,6 +69,9 @@ public class RestApi {
                             .filter(room -> {
                                 var roomInfo = DataCacher.getRoomInfo(room.name);
                                 try {
+                                    if (onlyBookable && room.isGhostRoom())
+                                        return false;
+
                                     // check minSeats
                                     //noinspection ConstantConditions
                                     if (roomInfo.roomSeats < minSeats) {
@@ -84,7 +84,7 @@ public class RestApi {
                                             return false;
                                     }
 
-                                    if (roomInfo.roomType.contains("kvarn"))
+                                    if (onlyBookable && roomInfo.roomType.contains("kvarn"))
                                         return false;
 
                                 } catch (Exception e) {

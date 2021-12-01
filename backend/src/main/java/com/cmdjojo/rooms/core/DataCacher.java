@@ -151,6 +151,10 @@ public class DataCacher {
             }
 
             Room.TimeSlot slot = new Room.TimeSlot(event);
+
+            // ignore "fake" bookings such as "Julafton/Holiday"
+            if (!Room.validBooking(slot)) continue;
+
             for (String roomName : roomNames) {
                 newData.rooms.computeIfAbsent(roomName, Room::new);
                 newData.rooms.get(roomName).bookings.add(slot);
