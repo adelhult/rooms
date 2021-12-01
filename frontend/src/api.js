@@ -2,7 +2,7 @@ import axios from 'axios';
 import config from './config';
 
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_DOORS_BACKEND_URL,
+  baseURL: config.appBaseUrl,
   timeout: 2000,
   validateStatus: status => status === 200,
 });
