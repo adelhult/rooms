@@ -55,6 +55,7 @@ public class RestApi {
             int number = parseOr(ctx.queryParam("number"), 1);
             int minSeats = parseOr(ctx.queryParam("minSeats"), 0);
             int minTimeInt = parseOr(ctx.queryParam("minTime"), 15);
+            boolean onlyBookable = Optional.ofNullable(ctx.queryParam("onlyBookable")).orElse("true").equals("true");
             long from = parseOr(ctx.queryParam("from"), System.currentTimeMillis());
             Instant fromDateTime = Instant.ofEpochMilli(from);
             Duration minTime = Duration.of(minTimeInt, ChronoUnit.MINUTES);
