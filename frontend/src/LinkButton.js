@@ -3,7 +3,7 @@ import "./styles/LinkButton.css";
 export default function LinkButton(props) {
   return (
     <a
-      className="LinkButton"
+      className={props.large ? "LinkButton large" : "LinkButton"}
       target="_blank"
       href={props.href}
     >

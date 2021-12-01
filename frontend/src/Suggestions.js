@@ -18,14 +18,14 @@ function Suggestions(props) {
   const roomElements = rooms.map((room, index) => (
       <Room
         {...room}
-        large={index == 0}
+        large={index === 0}
         key={room.name}
       />
   ));
 
   return roomElements.length > 0 ? <>
     <header className="App-header">
-      <h1>Ledigt rum</h1>
+      <h1>Grupprumsförslag</h1>
       <div className="App-featuredRoom">
         {roomElements[0]}
       </div>

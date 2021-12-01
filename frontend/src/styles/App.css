@@ -7,7 +7,7 @@
   padding:1rem;
 }
 
-.App .App-featuredRoom {
+.featuredRoom {
   position:relative;
   box-sizing: border-box;
   padding:1rem;
@@ -53,6 +53,10 @@
   user-select: none;
 }
 
+.delayedDisplay {
+  opacity:1;
+  animation:5s appear;
+}
 
 
 .App > header > h1 {
@@ -63,6 +67,18 @@
 @media screen and (max-width: 700px) {
   .App > header > h1 {
     font-size: 2rem;
+  }
+}
+
+@keyframes appear {
+  0% {
+    opacity:0;
+  }
+  90% {
+    opacity:0;
+  }
+  100% {
+    opacity:1;
   }
 }
 

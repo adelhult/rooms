@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './styles/App.css';
-import Room from "./Room.js";
+import Preview from "./Preview.js";
 import Suggestions from './Suggestions';
-import { getSuggestions } from './api';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import { faFilter } from '@fortawesome/free-solid-svg-icons'
 
@@ -15,6 +14,8 @@ function App() {
   const today = new Date();
   const [date, setDate] = useState(today.toISOString().split('T')[0]);
   
+  const isPreview = window.location.href.includes('#preview');
+
   const [hours, setHours] = 
     useState(today.getHours() < 10 ?
       '0' + today.getHours() :
@@ -33,6 +34,7 @@ function App() {
     newDate.setMinutes(minutes);
     return newDate;
   };
+
 
   return (
     <div className="App">
@@ -78,11 +80,21 @@ function App() {
             </div>
           }
         </section>
-        <Suggestions
-          date={getDate()} 
-          whiteboard={whiteboard}
-          minSeats={minSeats}
-        />
+        {
+          isPreview ?
+          <Preview
+            date={getDate()} 
+            whiteboard={whiteboard}
+            minSeats={minSeats}
+          />
+          :
+          <Suggestions
+            date={getDate()} 
+            whiteboard={whiteboard}
+            minSeats={minSeats}
+          />
+        }
+
     </div>
     
   );
