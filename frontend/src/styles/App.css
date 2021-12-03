@@ -33,11 +33,17 @@
   animation: slideIn 0.3s;
 }
 
-.App .App-options label {
+.App .App-options .section {
   display: block;
   font-weight: bold;
   margin-bottom:0.5rem;
   margin-top:1rem;
+}
+
+.App .App-options .toggle span {
+  position: relative;
+  bottom:6px;
+  margin-left:10px;
 }
 
 .App .App-options input[type="number"] {
@@ -48,7 +54,7 @@
   opacity:1;
 }
 
-.App .App-options .App-whiteboardToggle {
+.App .App-options .toggle {
   cursor:pointer;
   user-select: none;
 }
@@ -58,6 +64,22 @@
   animation:5s appear;
 }
 
+.my-toggle .react-toggle .react-toggle-track {
+  background-color: #6F6866;
+}
+
+
+.my-toggle .react-toggle--checked .react-toggle-track {
+  background-color: #06BA63;
+}
+
+.my-toggle .react-toggle--focus .react-toggle-track {
+  background-color: #11cf73;
+}
+
+.my-toggle .react-toggle--checked .react-toggle-thumb {
+  border-color: #06BA63;
+}
 
 .App > header > h1 {
   position: relative;

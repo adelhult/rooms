@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Toggle from 'react-toggle'
 import './styles/App.css';
 import Preview from "./Preview.js";
 import Suggestions from './Suggestions';
@@ -10,6 +11,7 @@ function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [whiteboard, setWhiteboard] = useState(false);
   const [minSeats, setMinSeats] = useState(1);
+  const [onlyBookable, setOnlyBookable] = useState(true);
 
   const today = new Date();
   const [date, setDate] = useState(today.toISOString().split('T')[0]);
@@ -51,7 +53,7 @@ function App() {
           {
           showSettings &&
             <div className="App-options-more">
-              <label>Datum och tid</label>
+              <label class="section">Datum och tid</label>
               <input type="date" id="start" name="trip-start"
                 value={date}
                 min={today.toLocaleDateString()}
@@ -64,7 +66,7 @@ function App() {
                   setHours(h);
                   setMinutes(m);
                }}/>
-              <label>Minsta antalet stolar</label>
+              <label class="section">Minsta antalet stolar</label>
               
               <input
                 type="number"
@@ -73,10 +75,22 @@ function App() {
                 value={minSeats}
               />
 
-              <label>Övrigt</label> 
-              <span className="App-whiteboardToggle" onClick={() => setWhiteboard(!whiteboard)}>
-                 Endast rum med whiteboard: {whiteboard ? "Ja" : "Nej"}
-               </span>
+              <label class="section">Övrigt</label> 
+              <label class="toggle">
+                <Toggle
+                  defaultChecked={whiteboard}
+                  className='my-toggle'
+                  onChange={() => setWhiteboard(!whiteboard)} />
+                <span>Visa endast rum med whiteboard</span>
+              </label>
+              <br/>
+              <label class="toggle">
+                <Toggle
+                  className='my-toggle'
+                  defaultChecked={onlyBookable}
+                  onChange={() => setOnlyBookable(!onlyBookable)} />
+                <span>Visa enbart bokningsbara rum</span>
+              </label>
             </div>
           }
         </section>
@@ -86,12 +100,14 @@ function App() {
             date={getDate()} 
             whiteboard={whiteboard}
             minSeats={minSeats}
+            onlyBookable={onlyBookable}
           />
           :
           <Suggestions
             date={getDate()} 
             whiteboard={whiteboard}
             minSeats={minSeats}
+            onlyBookable={onlyBookable}
           />
         }
 

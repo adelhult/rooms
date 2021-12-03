@@ -22,7 +22,8 @@ export const getSuggestions = async (options = {}) => new Promise((resolve, reje
       minSeats: options.minSeats ?? 4,
       minTime: options.minTime ?? 45,
       from: options.from ?? Date.now(),
-      equipment: options.equipment ?? [],
+      onlyBookable: options.onlyBookable ?? true,
+      equipment: options.equipment
     }
   }).then(response => {
     resolve(response.data);

@@ -13,6 +13,7 @@ export default function Preview(props) {
         from: props.date.getTime(),
         equipment: props.whiteboard ? "Whiteboard" : "",
         minSeats: props.minSeats,
+        onlyBookable: props.onlyBookable,
     })
       .then(rooms => setRooms(rooms))
       .catch(error => console.error(error));
