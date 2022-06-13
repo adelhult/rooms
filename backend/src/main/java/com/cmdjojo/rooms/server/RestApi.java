@@ -125,9 +125,9 @@ public class RestApi {
                 building = roomInfo.generalBuilding;
                 comment = roomInfo.info;
                 equipment = roomInfo.equipment;
-                chalmersMapsLink = roomInfo.chalmersMapsLink;
-                latitude = roomInfo.latitude;
-                longitude = roomInfo.longitude;
+//                chalmersMapsLink = roomInfo.chalmersMapsLink;
+//                latitude = roomInfo.latitude;
+//                longitude = roomInfo.longitude;
             }
             duration = timeslot.getDuration().toMillis();
         }
