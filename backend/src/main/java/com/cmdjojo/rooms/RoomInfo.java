@@ -43,6 +43,8 @@ public class RoomInfo {
         roomType = source.getFieldByFieldID(27);
         equipment = source.getFieldByFieldID(28);
         generalBuilding = source.getFieldByFieldID(79);
+        
+        info = source.getFieldByFieldID(11);
     }
     
     public static RoomInfo getRoomInfo(String room) {
