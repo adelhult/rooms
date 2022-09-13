@@ -7,8 +7,6 @@ import {
     faChalkboard,
     faCommentAlt,
     faInfoCircle,
-    faMapMarkedAlt,
-    faStreetView
 } from '@fortawesome/free-solid-svg-icons'
 import LinkButton from './LinkButton';
 
@@ -56,16 +54,6 @@ export default function Room(props) {
                 <p>{props.comment ?? "okänt"}</p>
             </li>
             }
-            <li>
-                <FontAwesomeIcon className="Room-inlineIcon" icon={faMapMarkedAlt}/>
-                <a target="_blank"
-                   href={`https://www.google.com/maps/place/${props.latitude},${props.longitude}`}><strong>Länk till
-                    karta</strong> </a>
-            </li>
-            <li>
-                <FontAwesomeIcon className="Room-inlineIcon" icon={faStreetView}/>
-                <a target="_blank" href={props.chalmersMapsLink}><strong>Länk till Chalmers maps</strong> </a>
-            </li>
         </ul>
     }
 
